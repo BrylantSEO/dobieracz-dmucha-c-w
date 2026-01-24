@@ -26,6 +26,12 @@ export default function Home() {
   const [inflatables, setInflatables] = useState([]);
   const [showResults, setShowResults] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [recommendations, setRecommendations] = useState([]);
+  const [selectedInflatableIds, setSelectedInflatableIds] = useState([]);
+  const [showContact, setShowContact] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [requestNumber, setRequestNumber] = useState('');
 
   useEffect(() => {
     const loadInflatables = async () => {
@@ -39,12 +45,172 @@ export default function Home() {
     setFormData(prev => ({ ...prev, ...updates }));
   };
 
+  const checkAvailability = async (inflatableId, eventDate) => {
+    const bookings = await base44.entities.Booking.filter({
+      inflatable_id: inflatableId,
+    });
+    
+    const conflictingBooking = bookings.find(b => 
+      b.status !== 'cancelled' &&
+      eventDate >= b.start_date && eventDate <= b.end_date
+    );
+    
+    if (conflictingBooking) return false;
+
+    const blocks = await base44.entities.AvailabilityBlock.filter({
+      inflatable_id: inflatableId,
+      is_active: true,
+    });
+    
+    const conflictingBlock = blocks.find(b => 
+      eventDate >= b.start_date && eventDate <= b.end_date
+    );
+    
+    return !conflictingBlock;
+  };
+
+  const extractEventInfo = async (description) => {
+    try {
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Wyciągnij kluczowe informacje z opisu imprezy. Jeśli czegoś brak, pozostaw null.
+
+Opis: "${description}"
+
+Wyciągnij:
+- participants_age_min: minimalny wiek uczestników (liczba)
+- participants_age_max: maksymalny wiek uczestników (liczba)
+- children_count: szacowana liczba dzieci (liczba)
+- is_outdoor: czy na zewnątrz (boolean)
+- preferences: preferencje (array stringów: slide, castle, obstacle, toddlers)`,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            participants_age_min: { type: 'number' },
+            participants_age_max: { type: 'number' },
+            children_count: { type: 'number' },
+            is_outdoor: { type: 'boolean' },
+            preferences: { type: 'array', items: { type: 'string' } },
+          }
+        }
+      });
+      return response;
+    } catch (e) {
+      return {};
+    }
+  };
+
+  const calculateScore = (inflatable, extractedInfo) => {
+    let score = 50;
+    const reasons = [];
+
+    if (extractedInfo.participants_age_min && extractedInfo.participants_age_max && 
+        inflatable.age_min && inflatable.age_max) {
+      if (extractedInfo.participants_age_min >= inflatable.age_min && 
+          extractedInfo.participants_age_max <= inflatable.age_max) {
+        score += 15;
+        reasons.push('Idealny dla podanego przedziału wiekowego');
+      }
+    }
+
+    if (extractedInfo.children_count && inflatable.max_capacity) {
+      if (inflatable.max_capacity >= extractedInfo.children_count / 3) {
+        score += 10;
+        reasons.push('Odpowiednia pojemność');
+      }
+    }
+
+    const prefs = extractedInfo.preferences || [];
+    if (prefs.includes('slide') && inflatable.type === 'slide') {
+      score += 15;
+      reasons.push('Zjeżdżalnia - zgodnie z preferencjami');
+    }
+    if (prefs.includes('castle') && inflatable.type === 'castle') {
+      score += 15;
+      reasons.push('Zamek - zgodnie z preferencjami');
+    }
+    if (prefs.includes('obstacle') && inflatable.type === 'obstacle_course') {
+      score += 15;
+      reasons.push('Tor przeszkód - zgodnie z preferencjami');
+    }
+    if (prefs.includes('toddlers') && inflatable.type === 'for_toddlers') {
+      score += 15;
+      reasons.push('Idealny dla maluchów');
+    }
+
+    if (extractedInfo.is_outdoor === false && inflatable.indoor_suitable) {
+      score += 10;
+      reasons.push('Nadaje się do wnętrz');
+    }
+    if (extractedInfo.is_outdoor && inflatable.outdoor_suitable) {
+      score += 5;
+    }
+
+    return { score: Math.min(score, 100), reasons };
+  };
+
   const handleSubmit = async () => {
     if (!formData.event_date || !formData.description.trim() || !formData.city.trim()) {
       return;
     }
     setLoading(true);
-    navigate(createPageUrl('Wizard'));
+    setShowResults(true);
+
+    const extractedInfo = await extractEventInfo(formData.description);
+    
+    const recs = [];
+    for (const inflatable of inflatables) {
+      if (extractedInfo.is_outdoor === false && !inflatable.indoor_suitable) continue;
+      if (extractedInfo.is_outdoor && !inflatable.outdoor_suitable) continue;
+
+      const isAvailable = await checkAvailability(inflatable.id, formData.event_date);
+      const { score, reasons } = calculateScore(inflatable, extractedInfo);
+
+      recs.push({
+        inflatable_id: inflatable.id,
+        is_available: isAvailable,
+        score,
+        reasons,
+        calculated_price: inflatable.base_price,
+      });
+    }
+
+    recs.sort((a, b) => {
+      if (a.is_available !== b.is_available) return b.is_available ? 1 : -1;
+      return b.score - a.score;
+    });
+
+    setRecommendations(recs.slice(0, 10));
+    setLoading(false);
+  };
+
+  const submitRequest = async (contactData) => {
+    setSubmitting(true);
+    const reqNumber = `ZAP-${Date.now().toString(36).toUpperCase()}`;
+
+    const quoteRequest = await base44.entities.QuoteRequest.create({
+      ...formData,
+      ...contactData,
+      request_number: reqNumber,
+      status: 'new',
+      selected_inflatable_ids: selectedInflatableIds,
+    });
+
+    for (const rec of recommendations) {
+      await base44.entities.QuoteRecommendation.create({
+        quote_request_id: quoteRequest.id,
+        inflatable_id: rec.inflatable_id,
+        rank: recommendations.indexOf(rec) + 1,
+        score: rec.score,
+        reasons: rec.reasons,
+        is_available: rec.is_available,
+        calculated_price: rec.calculated_price,
+        was_selected: selectedInflatableIds.includes(rec.inflatable_id),
+      });
+    }
+
+    setRequestNumber(reqNumber);
+    setSubmitting(false);
+    setSubmitted(true);
   };
 
   return (
