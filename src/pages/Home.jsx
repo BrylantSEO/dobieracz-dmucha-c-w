@@ -421,11 +421,12 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
                 </div>
               </div>
 
-              <div className="flex justify-end mt-8 pt-6 border-t border-slate-100">
+              <div className="flex justify-end mt-8 pt-6" style={{ borderTop: `2px solid var(--text-muted)` }}>
                 <Button
                   onClick={generateRecommendations}
                   disabled={!formData.event_date || !formData.description.trim() || !formData.city.trim()}
-                  className="bg-violet-600 hover:bg-violet-700 text-white gap-2 px-8"
+                  className="text-white gap-2 px-8 font-bold uppercase rounded-full text-base"
+                  style={{ backgroundColor: 'var(--accent-coral)' }}
                   size="lg"
                 >
                   {isExtractingInfo ? (
