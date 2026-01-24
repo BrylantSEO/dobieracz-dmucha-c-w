@@ -216,33 +216,48 @@ Wyciągnij:
     setSubmitted(true);
   };
 
+  if (submitted) {
+    return (
+      <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
+        <div className="container mx-auto px-4 py-12">
+          <ConfirmationView 
+            requestNumber={requestNumber} 
+            contactName={formData.contact_name} 
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div className="container mx-auto px-4 py-12 md:py-20">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6" style={{ backgroundColor: '#F5E6E9', color: 'var(--accent-pink)' }}>
-            <PartyPopper className="w-4 h-4" />
-            Wynajmem dmuchańców na każdą okazję
-          </div>
-        </motion.div>
+        {!showResults ? (
+          <>
+            {/* Header */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center mb-12"
+            >
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6" style={{ backgroundColor: '#F5E6E9', color: 'var(--accent-pink)' }}>
+                <PartyPopper className="w-4 h-4" />
+                Wynajmem dmuchańców na każdą okazję
+              </div>
+            </motion.div>
 
-        {/* Main Content */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="max-w-4xl mx-auto"
-        >
-          <h1 className="text-4xl md:text-6xl font-bold text-center mb-6" style={{ color: 'var(--text-dark)' }}>
-            Znajdziemy idealnego
-            <br />
-            <span style={{ color: 'var(--accent-pink)' }}>dmuchańca dla Ciebie</span>
-          </h1>
+            {/* Main Content */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="max-w-4xl mx-auto"
+            >
+              <h1 className="text-4xl md:text-6xl font-bold text-center mb-6" style={{ color: 'var(--text-dark)' }}>
+                Znajdziemy idealnego
+                <br />
+                <span style={{ color: 'var(--accent-pink)' }}>dmuchańca dla Ciebie</span>
+              </h1>
           
           <p className="text-lg md:text-xl text-center mb-12 max-w-2xl mx-auto" style={{ color: 'var(--text-muted)' }}>
             Powiedz nam o swojej imprezie, a nasz inteligentny system dobierze najlepsze atrakcje dmuchane. Szybko, prosto i bez zbędnych formalności.
