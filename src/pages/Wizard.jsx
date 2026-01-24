@@ -424,7 +424,7 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
               <div className="flex justify-end mt-8 pt-6 border-t border-slate-100">
                 <Button
                   onClick={generateRecommendations}
-                  disabled={!formData.event_date || !formData.description.trim()}
+                  disabled={!formData.event_date || !formData.description.trim() || !formData.city.trim()}
                   className="bg-violet-600 hover:bg-violet-700 text-white gap-2 px-8"
                   size="lg"
                 >
