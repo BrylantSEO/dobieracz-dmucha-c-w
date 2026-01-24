@@ -77,24 +77,28 @@ export default function AdminQuoteDetails() {
   const createBookingMutation = useMutation({
     mutationFn: async (inflatableId) => {
       const bookingNumber = `REZ-${Date.now().toString(36).toUpperCase()}`;
-      return base44.entities.Booking.create({
+      const bookingData = {
         booking_number: bookingNumber,
         inflatable_id: inflatableId,
         quote_request_id: requestId,
-        status: 'tentative',
+        status: 'confirmed',
         start_date: request.event_date,
         end_date: request.event_date,
-        start_time: request.event_start_time,
-        end_time: request.event_end_time,
+        start_time: request.event_start_time || '09:00',
+        end_time: request.event_end_time || '18:00',
         client_name: request.contact_name,
         client_phone: request.contact_phone,
         client_email: request.contact_email,
         delivery_address: `${request.address || ''}, ${request.city}`,
-      });
+        total_price: request.quoted_price || 0,
+      };
+      
+      const response = await base44.functions.invoke('createBookingWithCalendar', { bookingData });
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['bookings']);
-      alert('Rezerwacja utworzona!');
+      alert('Rezerwacja utworzona, dodana do kalendarza i zablokowana w systemie!');
     },
   });
 
