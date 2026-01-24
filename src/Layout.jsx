@@ -43,31 +43,7 @@ export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    checkAuth();
-  }, [currentPageName]);
 
-  const checkAuth = async () => {
-    const isAuthenticated = await base44.auth.isAuthenticated();
-    if (isAuthenticated) {
-      const userData = await base44.auth.me();
-      setUser(userData);
-      const hasAdminRole = userData?.business_role === 'admin' || userData?.business_role === 'staff' || userData?.role === 'admin';
-      setIsAdmin(hasAdminRole);
-
-      // Redirect non-admin from admin pages
-      if (adminPages.includes(currentPageName) && !hasAdminRole) {
-        navigate(createPageUrl('Home'));
-      }
-    } else {
-      setUser(null);
-      setIsAdmin(false);
-      // Redirect to login for admin pages
-      if (adminPages.includes(currentPageName)) {
-        base44.auth.redirectToLogin(window.location.href);
-      }
-    }
-  };
 
   const handleLogout = () => {
     base44.auth.logout(createPageUrl('Home'));
