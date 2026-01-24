@@ -157,18 +157,21 @@ export default function InflatableCard({
           </div>
         )}
 
-        {inflatable.base_price && (
+        {inflatable.price_for_hours && Object.keys(inflatable.price_for_hours).length > 0 && (
           <div className="mb-4 p-3 bg-slate-50 rounded-xl">
             <p className="text-xs font-medium text-slate-700 mb-2">Ceny za wynajem:</p>
             <div className="grid grid-cols-3 gap-2">
-              {[3, 4, 5, 6, 8].map((hours) => (
-                <div key={hours} className="text-center">
-                  <p className="text-xs text-slate-600">{hours}h</p>
-                  <p className="text-sm font-bold text-slate-800">
-                    {(inflatable.base_price + (inflatable.price_per_hour || 0) * hours).toLocaleString('pl-PL')} zł
-                  </p>
-                </div>
-              ))}
+              {[3, 4, 5, 6, 8].map((hours) => {
+                const price = inflatable.price_for_hours?.[`${hours}h`];
+                return price ? (
+                  <div key={hours} className="text-center">
+                    <p className="text-xs text-slate-600">{hours}h</p>
+                    <p className="text-sm font-bold text-slate-800">
+                      {price.toLocaleString('pl-PL')} zł
+                    </p>
+                  </div>
+                ) : null;
+              })}
             </div>
           </div>
         )}
