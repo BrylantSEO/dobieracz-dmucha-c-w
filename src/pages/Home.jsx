@@ -329,10 +329,10 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
           {!showResults ? (
             <>
               <div className="text-center mb-8">
-                <h1 className="text-5xl font-black uppercase mb-2" style={{ color: 'var(--accent-cyan)', letterSpacing: '2px' }}>
+                <h1 className="text-5xl font-black uppercase mb-2" style={{ color: colors.accentCyan, letterSpacing: '2px' }}>
                   Znajdź idealnego dmuchańca
                 </h1>
-                <p className="text-lg" style={{ color: 'var(--text-dark)' }}>
+                <p className="text-lg" style={{ color: colors.textDark }}>
                   Wybierz datę i opisz swoją imprezę - AI dobierze najlepsze opcje
                 </p>
               </div>
