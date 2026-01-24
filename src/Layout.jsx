@@ -41,9 +41,7 @@ export default function Layout({ children, currentPageName }) {
 
 
 
-  const handleLogout = () => {
-    base44.auth.logout(createPageUrl('Home'));
-  };
+
 
   // Public pages - no layout wrapper needed
   if (publicPages.includes(currentPageName)) {
