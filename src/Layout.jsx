@@ -24,18 +24,15 @@ const adminNavItems = [
 
 <style>{`
   :root {
-    --bg-primary: #F9B857;
-    --bg-secondary: #F5D0D0;
-    --accent-cyan: #00CED1;
-    --accent-purple: #9B6DFF;
-    --accent-coral: #E8686D;
-    --text-dark: #8B6914;
-    --text-muted: #A0A0A0;
-    --text-light: #FFFFFF;
+    --bg-primary: #FEF9FB;
+    --accent-pink: #EE2C5E;
+    --accent-orange: #F99E20;
+    --accent-blue: #1E1E9F;
+    --text-dark: #0B060A;
+    --text-muted: #BDA4A6;
     --radius-sm: 8px;
     --radius-md: 16px;
     --radius-lg: 24px;
-    --radius-pill: 25px;
   }
 `}</style>
 
