@@ -6,16 +6,17 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import {
-  PartyPopper, Menu, LayoutDashboard, Package, Tag, 
+  PartyPopper, Menu, LayoutDashboard, Package, Tag, Upload,
   ClipboardList, Calendar, CalendarOff, LogOut, X, ChevronRight
 } from 'lucide-react';
 
-const adminPages = ['AdminDashboard', 'AdminInflatables', 'AdminTags', 'AdminQuotes', 'AdminQuoteDetails', 'AdminBookings', 'AdminAvailability'];
+const adminPages = ['AdminDashboard', 'AdminInflatables', 'AdminImport', 'AdminTags', 'AdminQuotes', 'AdminQuoteDetails', 'AdminBookings', 'AdminAvailability'];
 const publicPages = ['Home', 'Wizard'];
 
 const adminNavItems = [
   { name: 'Dashboard', page: 'AdminDashboard', icon: LayoutDashboard },
   { name: 'Dmuchańce', page: 'AdminInflatables', icon: Package },
+  { name: 'Import CSV', page: 'AdminImport', icon: Upload },
   { name: 'Tagi', page: 'AdminTags', icon: Tag },
   { name: 'Zgłoszenia', page: 'AdminQuotes', icon: ClipboardList },
   { name: 'Rezerwacje', page: 'AdminBookings', icon: Calendar },

@@ -7,6 +7,7 @@ import AdminQuoteDetails from './pages/AdminQuoteDetails';
 import AdminTags from './pages/AdminTags';
 import AdminBookings from './pages/AdminBookings';
 import AdminAvailability from './pages/AdminAvailability';
+import AdminImport from './pages/AdminImport';
 import __Layout from './Layout.jsx';
 
 
@@ -20,6 +21,7 @@ export const PAGES = {
     "AdminTags": AdminTags,
     "AdminBookings": AdminBookings,
     "AdminAvailability": AdminAvailability,
+    "AdminImport": AdminImport,
 }
 
 export const pagesConfig = {
