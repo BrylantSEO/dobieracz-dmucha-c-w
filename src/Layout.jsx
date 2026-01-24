@@ -23,6 +23,20 @@ const adminNavItems = [
   { name: 'Blokady', page: 'AdminAvailability', icon: CalendarOff },
 ];
 
+<style>{`
+  :root {
+    --bg-primary: #FEF9FB;
+    --accent-pink: #EE2C5E;
+    --accent-orange: #F99E20;
+    --accent-blue: #1E1E9F;
+    --text-dark: #0B060A;
+    --text-muted: #BDA4A6;
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+  }
+`}</style>
+
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -71,10 +85,10 @@ export default function Layout({ children, currentPageName }) {
         {/* Desktop Sidebar */}
         <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 bg-white border-r border-slate-200">
           <div className="flex items-center gap-3 h-16 px-6 border-b border-slate-100">
-            <div className="w-9 h-9 rounded-xl bg-violet-600 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--accent-pink)' }}>
               <PartyPopper className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-slate-800">Dmuchańce</span>
+            <span className="font-bold" style={{ color: 'var(--text-dark)' }}>Dmuchańce</span>
           </div>
 
           <nav className="flex-1 px-4 py-6 space-y-1">
@@ -89,9 +103,10 @@ export default function Layout({ children, currentPageName }) {
                   className={cn(
                     "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors",
                     isActive
-                      ? "bg-violet-50 text-violet-700"
-                      : "text-slate-600 hover:bg-slate-50"
+                      ? "text-white"
+                      : "hover:bg-slate-50"
                   )}
+                  style={isActive ? { backgroundColor: 'var(--accent-pink)' } : {}}
                 >
                   <Icon className="w-5 h-5" />
                   {item.name}
@@ -102,7 +117,7 @@ export default function Layout({ children, currentPageName }) {
 
           <div className="p-4 border-t border-slate-100">
             <div className="flex items-center gap-3 px-4 py-2 mb-2">
-              <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 font-medium">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-medium" style={{ backgroundColor: 'var(--accent-pink)' }}>
                 {user?.full_name?.[0] || 'A'}
               </div>
               <div className="flex-1 min-w-0">
@@ -124,10 +139,10 @@ export default function Layout({ children, currentPageName }) {
         {/* Mobile Header */}
         <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-50">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-violet-600 flex items-center justify-center">
-              <PartyPopper className="w-5 h-5 text-white" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white" style={{ backgroundColor: 'var(--accent-pink)' }}>
+              <PartyPopper className="w-5 h-5" />
             </div>
-            <span className="font-bold text-slate-800">Panel Admin</span>
+            <span className="font-bold" style={{ color: 'var(--text-dark)' }}>Panel Admin</span>
           </div>
 
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -152,9 +167,10 @@ export default function Layout({ children, currentPageName }) {
                       className={cn(
                         "flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium",
                         isActive
-                          ? "bg-violet-50 text-violet-700"
-                          : "text-slate-600 hover:bg-slate-50"
+                          ? "text-white"
+                          : "hover:bg-slate-50"
                       )}
+                      style={isActive ? { backgroundColor: 'var(--accent-pink)' } : {}}
                     >
                       <div className="flex items-center gap-3">
                         <Icon className="w-5 h-5" />
