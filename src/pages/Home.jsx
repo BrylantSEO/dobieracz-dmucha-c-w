@@ -323,9 +323,9 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
+    <div className="min-h-screen" style={{ backgroundColor: colors.bgPrimary }}>
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="rounded-2xl shadow-xl border-2 p-6 sm:p-10" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--accent-coral)' }}>
+        <div className="rounded-2xl shadow-xl border-2 p-6 sm:p-10" style={{ backgroundColor: colors.bgSecondary, borderColor: colors.accentCoral }}>
           {!showResults ? (
             <>
               <div className="text-center mb-8">
