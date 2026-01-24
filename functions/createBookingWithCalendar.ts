@@ -16,11 +16,16 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing booking data' }, { status: 400 });
     }
 
-    // 1. Create booking in database
-    const booking = await base44.asServiceRole.entities.Booking.create(bookingData);
+    // 1. Get inflatable details first
+    let inflatable;
+    try {
+      inflatable = await base44.asServiceRole.entities.Inflatable.get(bookingData.inflatable_id);
+    } catch (error) {
+      return Response.json({ error: 'Dmuchaniec nie znaleziony' }, { status: 404 });
+    }
 
-    // 2. Get inflatable details
-    const inflatable = await base44.asServiceRole.entities.Inflatable.get(bookingData.inflatable_id);
+    // 2. Create booking in database
+    const booking = await base44.asServiceRole.entities.Booking.create(bookingData);
 
     // 3. Create availability block
     await base44.asServiceRole.entities.AvailabilityBlock.create({
@@ -33,6 +38,9 @@ Deno.serve(async (req) => {
     });
 
     // 4. Add to Google Calendar
+    let calendarSuccess = false;
+    let calendarError = null;
+    
     try {
       const accessToken = await base44.asServiceRole.connectors.getAccessToken('googlecalendar');
       
@@ -74,17 +82,26 @@ Deno.serve(async (req) => {
 
       if (!calendarResponse.ok) {
         const errorText = await calendarResponse.text();
-        console.error('Google Calendar error:', errorText);
+        calendarError = `Status ${calendarResponse.status}: ${errorText}`;
+        console.error('Google Calendar error:', calendarError);
+      } else {
+        const calendarData = await calendarResponse.json();
+        console.log('Calendar event created:', calendarData.id);
+        calendarSuccess = true;
       }
-    } catch (calendarError) {
-      console.error('Failed to create calendar event:', calendarError);
-      // Don't fail the whole booking if calendar fails
+    } catch (error) {
+      calendarError = error.message;
+      console.error('Failed to create calendar event:', error);
     }
 
     return Response.json({ 
       success: true, 
       booking: booking,
-      message: 'Rezerwacja utworzona, dodana do kalendarza i zablokowana w systemie'
+      calendarAdded: calendarSuccess,
+      calendarError: calendarError,
+      message: calendarSuccess 
+        ? 'Rezerwacja utworzona, dodana do kalendarza i zablokowana w systemie'
+        : `Rezerwacja utworzona i zablokowana. Błąd kalendarza: ${calendarError}`
     });
 
   } catch (error) {
