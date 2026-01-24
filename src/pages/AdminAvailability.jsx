@@ -234,21 +234,37 @@ function BlockFormDialog({ open, onOpenChange, inflatables }) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Data od *</Label>
-              <Input
-                type="date"
-                value={formData.start_date}
-                onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
-                required
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full">
+                    {formData.start_date ? format(new Date(formData.start_date), 'd MMM yyyy', { locale: pl }) : 'Wybierz datę'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <CalendarComponent
+                    mode="single"
+                    selected={new Date(formData.start_date)}
+                    onSelect={(date) => setFormData(prev => ({ ...prev, start_date: format(date, 'yyyy-MM-dd') }))}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div>
               <Label>Data do *</Label>
-              <Input
-                type="date"
-                value={formData.end_date}
-                onChange={(e) => setFormData(prev => ({ ...prev, end_date: e.target.value }))}
-                required
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full">
+                    {formData.end_date ? format(new Date(formData.end_date), 'd MMM yyyy', { locale: pl }) : 'Wybierz datę'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <CalendarComponent
+                    mode="single"
+                    selected={new Date(formData.end_date)}
+                    onSelect={(date) => setFormData(prev => ({ ...prev, end_date: format(date, 'yyyy-MM-dd') }))}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
