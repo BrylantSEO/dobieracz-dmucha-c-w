@@ -1,17 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
-import { PartyPopper, ArrowUp, Calendar, Users, Zap, Phone } from 'lucide-react';
-
-const exampleQueries = [
-  'Urodziny mojego 6-letniego syna, około 15 dzieci, ogród',
-  'Piknik firmowy na 50 osób, potrzebujemy czegoś większego',
-  'Komunia w domu, dla dzieci 8-12 lat, sala z parkietem',
-];
+import { PartyPopper, Sparkles, Calendar, Users, Zap, Phone } from 'lucide-react';
 
 export default function Home() {
   const navigate = useNavigate();
