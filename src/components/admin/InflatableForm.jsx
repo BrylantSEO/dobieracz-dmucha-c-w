@@ -56,6 +56,7 @@ export default function InflatableForm({ inflatable, tags, onClose }) {
     surface_types: ['grass'],
     base_price: null,
     price_per_hour: null,
+    price_for_hours: {},
     delivery_price: null,
     tag_ids: [],
     is_active: true,
@@ -345,22 +346,45 @@ export default function InflatableForm({ inflatable, tags, onClose }) {
       </div>
 
       {/* Prices */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <div>
-          <Label>Cena/godz. (zł)</Label>
-          <Input
-            type="number"
-            value={formData.price_per_hour || ''}
-            onChange={(e) => setFormData(prev => ({ ...prev, price_per_hour: parseFloat(e.target.value) || null }))}
-          />
+      <div>
+        <Label className="mb-3 block font-semibold">Ceny za wynajmy</Label>
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-4 p-4 bg-slate-50 rounded-lg">
+          {[3, 4, 5, 6, 8].map(hours => (
+            <div key={`${hours}h`}>
+              <Label className="text-xs">{hours}h (zł)</Label>
+              <Input
+                type="number"
+                value={formData.price_for_hours?.[`${hours}h`] || ''}
+                onChange={(e) => setFormData(prev => ({
+                  ...prev,
+                  price_for_hours: {
+                    ...prev.price_for_hours,
+                    [`${hours}h`]: e.target.value ? parseFloat(e.target.value) : undefined
+                  }
+                }))}
+                placeholder="np. 299"
+              />
+            </div>
+          ))}
         </div>
-        <div>
-          <Label>Dostawa (zł)</Label>
-          <Input
-            type="number"
-            value={formData.delivery_price || ''}
-            onChange={(e) => setFormData(prev => ({ ...prev, delivery_price: parseFloat(e.target.value) || null }))}
-          />
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label>Cena/godz. (zł)</Label>
+            <Input
+              type="number"
+              value={formData.price_per_hour || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, price_per_hour: parseFloat(e.target.value) || null }))}
+            />
+          </div>
+          <div>
+            <Label>Dostawa (zł)</Label>
+            <Input
+              type="number"
+              value={formData.delivery_price || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, delivery_price: parseFloat(e.target.value) || null }))}
+            />
+          </div>
         </div>
       </div>
 
