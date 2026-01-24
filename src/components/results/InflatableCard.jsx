@@ -7,7 +7,7 @@ import {
   Users, Ruler, Zap, Clock, Star,
   CheckCircle2, XCircle, Baby, ChevronLeft, ChevronRight, Bell
 } from 'lucide-react';
-import NotificationModal from './NotificationModal.js';
+import NotificationModal from './NotificationModal';
 
 export default function InflatableCard({ 
   inflatable, 
