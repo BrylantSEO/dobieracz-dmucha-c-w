@@ -14,6 +14,18 @@ import ConfirmationView from '@/components/results/ConfirmationView';
 import StepContact from '@/components/wizard/StepContact';
 
 export default function Home() {
+  // Define color variables
+  const colors = {
+    bgPrimary: '#F9B857',
+    bgSecondary: '#F5D0D0',
+    accentCyan: '#00CED1',
+    accentPurple: '#9B6DFF',
+    accentCoral: '#E8686D',
+    textDark: '#8B6914',
+    textMuted: '#A0A0A0',
+    textLight: '#FFFFFF',
+  };
+
   const [formData, setFormData] = useState({
     event_date: null,
     description: '',
