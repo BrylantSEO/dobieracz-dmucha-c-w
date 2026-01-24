@@ -117,8 +117,8 @@ export default function Wizard() {
       }
     }
 
-    // Space match
-    if (formData.space_length && formData.space_width) {
+    // Space match (jeśli podane)
+    if (requestData.space_length && requestData.space_width) {
       if (inflatable.min_space_length && inflatable.min_space_width) {
         if (formData.space_length >= inflatable.min_space_length && 
             formData.space_width >= inflatable.min_space_width) {
