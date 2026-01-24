@@ -17,6 +17,10 @@ export default function Wizard() {
     event_date: null,
     description: '',
     is_full_day: true,
+    city: '',
+    event_start_time: '',
+    event_end_time: '',
+    event_type: '',
   });
   const [showResults, setShowResults] = useState(false);
   const [showContact, setShowContact] = useState(false);
