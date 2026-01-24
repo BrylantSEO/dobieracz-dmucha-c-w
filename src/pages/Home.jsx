@@ -59,28 +59,40 @@ export default function Home() {
 
           {/* Input Form */}
           <form onSubmit={handleSubmit} className="mb-8">
-            <Card className="border-2 shadow-2xl" style={{ borderColor: 'var(--accent-pink)' }}>
-              <CardContent className="p-6">
+            <div 
+              className="rounded-2xl shadow-2xl overflow-hidden border-2 relative"
+              style={{ 
+                borderColor: 'var(--accent-pink)',
+                backgroundImage: 'url(https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6974b6e1386b50e2b18613df/2b36acb97_FestiwaldmuchancowwTwoimmiescie1.jpg)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
+            >
+              {/* Overlay */}
+              <div className="absolute inset-0 bg-black/35"></div>
+
+              {/* Content */}
+              <div className="relative z-10 p-6">
                 <div className="relative">
                   <Textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Opisz swoją imprezę... np. 'Urodziny mojego 6-letniego syna, około 15 dzieci, w ogrodzie, szukamy czegoś kolorowego z zjeżdżalnią'"
                     rows={5}
-                    className="text-base resize-none pr-14 border-none focus-visible:ring-0 text-slate-800 placeholder:text-slate-400"
+                    className="text-base resize-none pr-16 border-none focus-visible:ring-0 text-slate-800 placeholder:text-slate-400 bg-white/95"
                     required
                   />
                   <Button
                     type="submit"
                     disabled={!description.trim()}
-                    className="absolute bottom-3 right-3 rounded-full w-12 h-12 p-0 shadow-lg disabled:opacity-50 text-white"
+                    className="absolute bottom-3 right-3 rounded-full w-14 h-14 p-0 shadow-lg disabled:opacity-50 text-white hover:scale-110 transition-transform"
                     style={{ backgroundColor: 'var(--accent-pink)' }}
                   >
-                    <ArrowUp className="w-6 h-6" />
+                    <ArrowUp className="w-8 h-8" />
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </form>
 
           {/* Example Queries */}
