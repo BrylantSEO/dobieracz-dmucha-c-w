@@ -327,7 +327,7 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
 
               <div className="space-y-6">
                 <div>
-                  <Label className="text-base font-semibold mb-3 block">
+                  <Label className="text-base font-bold mb-3 block uppercase" style={{ color: 'var(--text-dark)' }}>
                     💬 Opisz swoją imprezę *
                   </Label>
                   <Textarea
