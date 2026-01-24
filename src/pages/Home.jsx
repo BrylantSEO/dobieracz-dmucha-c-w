@@ -408,7 +408,7 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
                     </div>
 
                     <div>
-                      <Label className="text-base font-bold mb-3 block uppercase" style={{ color: 'var(--text-dark)' }}>
+                      <Label className="text-base font-bold mb-3 block uppercase" style={{ color: colors.textDark }}>
                         ⏰ Godziny wynajmu (opcjonalnie)
                       </Label>
                       <div className="flex gap-2">
@@ -417,15 +417,15 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
                           value={formData.event_start_time}
                           onChange={(e) => updateFormData({ event_start_time: e.target.value })}
                           className="text-base border-2"
-                          style={{ borderColor: 'var(--text-muted)', color: 'var(--text-dark)' }}
+                          style={{ borderColor: colors.textMuted, color: colors.textDark }}
                         />
-                        <span className="flex items-center font-bold" style={{ color: 'var(--text-dark)' }}>-</span>
+                        <span className="flex items-center font-bold" style={{ color: colors.textDark }}>-</span>
                         <Input
                           type="time"
                           value={formData.event_end_time}
                           onChange={(e) => updateFormData({ event_end_time: e.target.value })}
                           className="text-base border-2"
-                          style={{ borderColor: 'var(--text-muted)', color: 'var(--text-dark)' }}
+                          style={{ borderColor: colors.textMuted, color: colors.textDark }}
                         />
                       </div>
                     </div>
