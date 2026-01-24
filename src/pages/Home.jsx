@@ -446,11 +446,12 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
           ) : showContact ? (
             <>
               <StepContact data={formData} onChange={updateFormData} />
-              <div className="flex justify-between mt-8 pt-6 border-t border-slate-100">
+              <div className="flex justify-between mt-8 pt-6" style={{ borderTop: `2px solid var(--text-muted)` }}>
                 <Button
                   variant="ghost"
                   onClick={() => setShowContact(false)}
-                  className="gap-2"
+                  className="gap-2 font-bold uppercase"
+                  style={{ color: 'var(--text-dark)' }}
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Wstecz
@@ -458,7 +459,8 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
                 <Button
                   onClick={() => submitRequest(formData)}
                   disabled={!formData.contact_name || !formData.contact_phone || !formData.contact_email || submitting}
-                  className="bg-violet-600 hover:bg-violet-700 text-white px-8"
+                  className="text-white px-8 font-bold uppercase rounded-full"
+                  style={{ backgroundColor: 'var(--accent-coral)' }}
                   size="lg"
                 >
                   {submitting ? (
