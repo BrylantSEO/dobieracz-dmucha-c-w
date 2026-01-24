@@ -375,7 +375,7 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
 
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-base font-bold mb-3 block uppercase" style={{ color: 'var(--text-dark)' }}>
+                      <Label className="text-base font-bold mb-3 block uppercase" style={{ color: colors.textDark }}>
                         📍 Miasto *
                       </Label>
                       <Input
@@ -383,12 +383,12 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
                         onChange={(e) => updateFormData({ city: e.target.value })}
                         placeholder="np. Warszawa"
                         className="text-base border-2"
-                        style={{ borderColor: 'var(--text-muted)', color: 'var(--text-dark)' }}
+                        style={{ borderColor: colors.textMuted, color: colors.textDark }}
                       />
                     </div>
 
                     <div>
-                      <Label className="text-base font-bold mb-3 block uppercase" style={{ color: 'var(--text-dark)' }}>
+                      <Label className="text-base font-bold mb-3 block uppercase" style={{ color: colors.textDark }}>
                         🎉 Typ imprezy (opcjonalnie)
                       </Label>
                       <Select value={formData.event_type} onValueChange={(v) => updateFormData({ event_type: v })}>
