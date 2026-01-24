@@ -332,35 +332,92 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
               <div className="space-y-6">
                 <div>
                   <Label className="text-base font-semibold mb-3 block">
-                    📅 Kiedy planujesz imprezę?
-                  </Label>
-                  <Card className="border-2 border-slate-100">
-                    <CardContent className="p-4">
-                      <Calendar
-                        mode="single"
-                        selected={formData.event_date ? new Date(formData.event_date) : undefined}
-                        onSelect={(date) => updateFormData({ event_date: date?.toISOString().split('T')[0] })}
-                        disabled={(date) => date < new Date()}
-                        className="rounded-md"
-                      />
-                    </CardContent>
-                  </Card>
-                </div>
-
-                <div>
-                  <Label className="text-base font-semibold mb-3 block">
-                    💬 Opisz swoją imprezę
+                    💬 Opisz swoją imprezę *
                   </Label>
                   <Textarea
                     value={formData.description}
                     onChange={(e) => updateFormData({ description: e.target.value })}
                     placeholder="Napisz o swojej imprezie... np: 'Urodziny 6-latka, około 15 dzieci, w ogrodzie. Szukamy czegoś kolorowego z zjeżdżalnią.'"
-                    rows={5}
+                    rows={4}
                     className="text-base"
                   />
                   <p className="text-sm text-slate-500 mt-2">
                     Im więcej szczegółów, tym lepsze dopasowanie 🎯
                   </p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <Label className="text-base font-semibold mb-3 block">
+                      📅 Data imprezy *
+                    </Label>
+                    <Card className="border-2 border-slate-100">
+                      <CardContent className="p-4">
+                        <Calendar
+                          mode="single"
+                          selected={formData.event_date ? new Date(formData.event_date) : undefined}
+                          onSelect={(date) => updateFormData({ event_date: date?.toISOString().split('T')[0] })}
+                          disabled={(date) => date < new Date()}
+                          className="rounded-md"
+                        />
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-base font-semibold mb-3 block">
+                        📍 Miasto *
+                      </Label>
+                      <Input
+                        value={formData.city}
+                        onChange={(e) => updateFormData({ city: e.target.value })}
+                        placeholder="np. Warszawa"
+                        className="text-base"
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="text-base font-semibold mb-3 block">
+                        🎉 Typ imprezy (opcjonalnie)
+                      </Label>
+                      <Select value={formData.event_type} onValueChange={(v) => updateFormData({ event_type: v })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Wybierz typ..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="birthday">Urodziny</SelectItem>
+                          <SelectItem value="corporate_picnic">Piknik firmowy</SelectItem>
+                          <SelectItem value="festival">Festiwal</SelectItem>
+                          <SelectItem value="communion">Komunia</SelectItem>
+                          <SelectItem value="wedding">Wesele</SelectItem>
+                          <SelectItem value="school_event">Impreza szkolna</SelectItem>
+                          <SelectItem value="other">Inne</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label className="text-base font-semibold mb-3 block">
+                        ⏰ Godziny wynajmu (opcjonalnie)
+                      </Label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="time"
+                          value={formData.event_start_time}
+                          onChange={(e) => updateFormData({ event_start_time: e.target.value })}
+                          className="text-base"
+                        />
+                        <span className="flex items-center text-slate-500">-</span>
+                        <Input
+                          type="time"
+                          value={formData.event_end_time}
+                          onChange={(e) => updateFormData({ event_end_time: e.target.value })}
+                          className="text-base"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
