@@ -485,8 +485,8 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
                 noResults={recommendations.filter(r => r.is_available).length === 0}
               />
               {!isLoadingResults && (
-                <div className="mt-6 pt-6 border-t border-slate-100">
-                  <Button variant="ghost" onClick={() => setShowResults(false)} className="gap-2">
+                <div className="mt-6 pt-6" style={{ borderTop: `2px solid var(--text-muted)` }}>
+                  <Button variant="ghost" onClick={() => setShowResults(false)} className="gap-2 font-bold uppercase" style={{ color: 'var(--text-dark)' }}>
                     <ArrowLeft className="w-4 h-4" />
                     Zmień datę lub opis
                   </Button>
