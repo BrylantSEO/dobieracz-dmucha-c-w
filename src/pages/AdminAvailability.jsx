@@ -11,6 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import { Plus, Trash2, Wrench, Calendar, AlertTriangle, Loader2 } from 'lucide-react';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const reasonLabels = {
   repair: 'Naprawa',
