@@ -19,6 +19,15 @@ export default function Wizard() {
     is_outdoor: true,
     preferences: [],
   });
+
+  // Check if we have a description from home page
+  useEffect(() => {
+    const savedDescription = sessionStorage.getItem('eventDescription');
+    if (savedDescription) {
+      setFormData(prev => ({ ...prev, other_requirements: savedDescription }));
+      sessionStorage.removeItem('eventDescription');
+    }
+  }, []);
   const [showResults, setShowResults] = useState(false);
   const [isLoadingResults, setIsLoadingResults] = useState(false);
   const [recommendations, setRecommendations] = useState([]);
