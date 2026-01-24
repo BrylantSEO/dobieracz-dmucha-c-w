@@ -10,7 +10,6 @@ import {
   ClipboardList, Calendar, CalendarOff, LogOut, X, ChevronRight
 } from 'lucide-react';
 
-const adminPages = ['AdminDashboard', 'AdminInflatables', 'AdminImport', 'AdminTags', 'AdminQuotes', 'AdminQuoteDetails', 'AdminBookings', 'AdminAvailability'];
 const publicPages = ['Home', 'Wizard'];
 
 const adminNavItems = [
