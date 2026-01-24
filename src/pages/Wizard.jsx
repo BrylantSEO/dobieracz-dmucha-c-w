@@ -4,6 +4,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { base44 } from '@/api/base44Client';
 import { ArrowLeft, Calendar as CalendarIcon, Loader2, Sparkles } from 'lucide-react';
 import ResultsDisplay from '@/components/results/ResultsDisplay';
