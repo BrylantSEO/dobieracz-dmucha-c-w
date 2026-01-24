@@ -1,20 +1,24 @@
 import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { 
   Users, Ruler, Zap, Clock, Star,
-  CheckCircle2, XCircle, Baby, ChevronLeft, ChevronRight
+  CheckCircle2, XCircle, Baby, ChevronLeft, ChevronRight, Bell
 } from 'lucide-react';
+import NotificationModal from './NotificationModal';
 
 export default function InflatableCard({ 
   inflatable, 
   recommendation, 
   isSelected, 
   onToggleSelect,
-  showCheckbox = true 
+  showCheckbox = true,
+  eventDate = null
 }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
   
   const isAvailable = recommendation?.is_available !== false;
   const score = recommendation?.score || 0;
@@ -167,7 +171,30 @@ export default function InflatableCard({
             </div>
           )}
         </div>
+
+        {!isAvailable && eventDate && (
+          <div className="mt-3 pt-3 border-t border-slate-100">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowNotificationModal(true)}
+              className="w-full gap-2"
+              style={{ color: 'var(--accent-pink)', borderColor: 'var(--accent-pink)' }}
+            >
+              <Bell className="w-4 h-4" />
+              Powiadom mnie
+            </Button>
+          </div>
+        )}
       </div>
+
+      {showNotificationModal && (
+        <NotificationModal
+          inflatable={inflatable}
+          eventDate={eventDate}
+          onClose={() => setShowNotificationModal(false)}
+        />
+      )}
     </div>
   );
 }
