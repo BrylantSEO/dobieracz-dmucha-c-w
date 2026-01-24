@@ -38,10 +38,7 @@ const adminNavItems = [
 `}</style>
 
 export default function Layout({ children, currentPageName }) {
-  const [user, setUser] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const navigate = useNavigate();
 
 
 
