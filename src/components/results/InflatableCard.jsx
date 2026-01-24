@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { 
   Users, Ruler, Zap, Clock, Star,
-  CheckCircle2, XCircle, Baby
+  CheckCircle2, XCircle, Baby, ChevronLeft, ChevronRight
 } from 'lucide-react';
 
 export default function InflatableCard({ 
@@ -14,10 +14,28 @@ export default function InflatableCard({
   onToggleSelect,
   showCheckbox = true 
 }) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
   const isAvailable = recommendation?.is_available !== false;
   const score = recommendation?.score || 0;
   const reasons = recommendation?.reasons || [];
   const price = recommendation?.calculated_price || inflatable.base_price;
+  
+  const images = inflatable.images?.length > 0 
+    ? inflatable.images 
+    : inflatable.main_image 
+      ? [inflatable.main_image]
+      : ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop'];
+
+  const nextImage = (e) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = (e) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
 
   return (
     <div className={cn(
@@ -25,12 +43,43 @@ export default function InflatableCard({
       isSelected ? "border-violet-500 shadow-violet-100" : "border-slate-100",
       !isAvailable && "opacity-60"
     )}>
-      <div className="relative">
+      <div className="relative group">
         <img 
-          src={inflatable.main_image || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop'} 
-          alt={inflatable.name}
+          src={images[currentImageIndex]} 
+          alt={`${inflatable.name} - zdjęcie ${currentImageIndex + 1}`}
           className="w-full h-48 object-cover"
         />
+        
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={prevImage}
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+            >
+              <ChevronLeft className="w-5 h-5 text-slate-700" />
+            </button>
+            <button
+              onClick={nextImage}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+            >
+              <ChevronRight className="w-5 h-5 text-slate-700" />
+            </button>
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+              {images.map((_, idx) => (
+                <div
+                  key={idx}
+                  className={cn(
+                    "w-1.5 h-1.5 rounded-full transition-all",
+                    idx === currentImageIndex 
+                      ? "bg-white w-4" 
+                      : "bg-white/60"
+                  )}
+                />
+              ))}
+            </div>
+          </>
+        )}
+        
         {showCheckbox && isAvailable && (
           <div className="absolute top-3 right-3">
             <div 
