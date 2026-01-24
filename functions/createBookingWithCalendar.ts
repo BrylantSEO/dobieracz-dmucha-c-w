@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
       };
 
       const calendarResponse = await fetch(
-        'https://www.googleapis.com/calendar/v3/calendars/cv6i0rbfuj9trj1i9afrk7dnbs@group.calendar.google.com/events',
+        'https://www.googleapis.com/calendar/v3/calendars/primary/events',
         {
           method: 'POST',
           headers: {
