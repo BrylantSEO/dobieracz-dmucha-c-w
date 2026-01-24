@@ -52,52 +52,16 @@ export default function Home() {
             Powiedz nam o swojej imprezie, a nasz inteligentny system dobierze najlepsze atrakcje dmuchane. Szybko, prosto i bez zbędnych formalności.
           </p>
 
-          {/* Input Form */}
-          <form onSubmit={handleSubmit} className="mb-8">
-            <Card className="border-2 shadow-2xl" style={{ borderColor: 'var(--accent-pink)' }}>
-              <CardContent className="p-6">
-                <div className="relative">
-                  <Textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Opisz swoją imprezę... np. 'Urodziny mojego 6-letniego syna, około 15 dzieci, w ogrodzie, szukamy czegoś kolorowego z zjeżdżalnią'"
-                    rows={5}
-                    className="text-base resize-none pr-14 border-none focus-visible:ring-0 text-slate-800 placeholder:text-slate-400"
-                    required
-                  />
-                  <Button
-                    type="submit"
-                    disabled={!description.trim()}
-                    className="absolute bottom-3 right-3 rounded-full w-12 h-12 p-0 shadow-lg disabled:opacity-50 text-white"
-                    style={{ backgroundColor: 'var(--accent-pink)' }}
-                  >
-                    <ArrowUp className="w-6 h-6" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </form>
-
-          {/* Example Queries */}
-          <div className="text-center mb-16">
-            <p className="text-sm text-slate-500 mb-3">
-              Nie wiesz co napisać? Spróbuj:
-            </p>
-            <div className="flex flex-wrap justify-center gap-2">
-              {exampleQueries.map((query, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => setDescription(query)}
-                  className="px-4 py-2 text-sm bg-white rounded-full border transition-colors"
-                  style={{ borderColor: 'var(--text-muted)', color: 'var(--text-dark)' }}
-                  onMouseEnter={(e) => e.target.style.borderColor = 'var(--accent-pink)'}
-                  onMouseLeave={(e) => e.target.style.borderColor = 'var(--text-muted)'}
-                >
-                  {query}
-                </button>
-              ))}
-            </div>
+          {/* CTA Button */}
+          <div className="flex justify-center mb-16">
+            <Button
+              onClick={handleStart}
+              className="text-white gap-2 px-12 py-6 text-lg"
+              style={{ backgroundColor: 'var(--accent-pink)' }}
+            >
+              <Sparkles className="w-5 h-5" />
+              Zacznij szukać dmuchańca
+            </Button>
           </div>
 
           {/* Stats */}
