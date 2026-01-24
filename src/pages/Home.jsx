@@ -14,15 +14,10 @@ const exampleQueries = [
 ];
 
 export default function Home() {
-  const [description, setDescription] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (description.trim()) {
-      sessionStorage.setItem('eventDescription', description);
-      navigate(createPageUrl('Wizard'));
-    }
+  const handleStart = () => {
+    navigate(createPageUrl('Wizard'));
   };
 
   return (
