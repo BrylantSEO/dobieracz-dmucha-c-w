@@ -86,11 +86,12 @@ export default function ResultsDisplay({
                 transition={{ delay: index * 0.1 }}
               >
                 <InflatableCard
-                  inflatable={inflatable}
-                  recommendation={rec}
-                  isSelected={selectedIds.includes(rec.inflatable_id)}
-                  onToggleSelect={toggleSelect}
-                />
+                   inflatable={inflatable}
+                   recommendation={rec}
+                   isSelected={selectedIds.includes(rec.inflatable_id)}
+                   onToggleSelect={toggleSelect}
+                   eventDate={sessionStorage.getItem('eventDate')}
+                 />
               </motion.div>
             );
           })}
@@ -108,11 +109,12 @@ export default function ResultsDisplay({
               if (!inflatable) return null;
               return (
                 <InflatableCard
-                  key={rec.inflatable_id}
-                  inflatable={inflatable}
-                  recommendation={rec}
-                  showCheckbox={false}
-                />
+                   key={rec.inflatable_id}
+                   inflatable={inflatable}
+                   recommendation={rec}
+                   showCheckbox={false}
+                   eventDate={sessionStorage.getItem('eventDate')}
+                 />
               );
             })}
           </div>
