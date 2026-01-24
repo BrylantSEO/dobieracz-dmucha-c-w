@@ -433,12 +433,12 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
                 </div>
               </div>
 
-              <div className="flex justify-end mt-8 pt-6" style={{ borderTop: `2px solid var(--text-muted)` }}>
+              <div className="flex justify-end mt-8 pt-6" style={{ borderTop: `2px solid ${colors.textMuted}` }}>
                 <Button
                   onClick={generateRecommendations}
                   disabled={!formData.event_date || !formData.description.trim() || !formData.city.trim()}
-                  className="text-white gap-2 px-8 font-bold uppercase rounded-full text-base"
-                  style={{ backgroundColor: 'var(--accent-coral)' }}
+                  className="text-white gap-2 px-8 font-bold uppercase rounded-full text-base hover:opacity-90"
+                  style={{ backgroundColor: colors.accentCoral }}
                   size="lg"
                 >
                   {isExtractingInfo ? (
