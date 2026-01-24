@@ -439,10 +439,11 @@ Wyciągnij:
               </div>
               <h3 className="font-semibold mb-2" style={{ color: 'var(--text-dark)' }}>Doświadczeni</h3>
               <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Ponad 500 udanych imprez za nami</p>
-            </motion.div>
-            </motion.div>
-          </>
-        ) : showContact ? (
+              </motion.div>
+              </div>
+              </motion.div>
+              </>
+              ) : showContact ? (
           <div className="max-w-4xl mx-auto">
             <StepContact data={formData} onChange={updateFormData} />
             <div className="flex justify-between mt-8 pt-6 border-t border-slate-100 bg-white rounded-2xl p-6 shadow-lg">
@@ -494,10 +495,11 @@ Wyciągnij:
               </div>
             )}
           </div>
-        )}
-      </div>
+          )}
+          </div>
+          </div>
 
-      {/* Footer */}
+          {/* Footer */}
       <footer className="border-t mt-20" style={{ borderColor: 'var(--text-muted)', backgroundColor: '#FFFFFF' }}>
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm" style={{ color: 'var(--text-muted)' }}>
