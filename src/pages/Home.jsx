@@ -458,23 +458,23 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
           ) : showContact ? (
             <>
               <StepContact data={formData} onChange={updateFormData} />
-              <div className="flex justify-between mt-8 pt-6" style={{ borderTop: `2px solid var(--text-muted)` }}>
-                <Button
-                  variant="ghost"
-                  onClick={() => setShowContact(false)}
-                  className="gap-2 font-bold uppercase"
-                  style={{ color: 'var(--text-dark)' }}
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Wstecz
-                </Button>
-                <Button
-                  onClick={() => submitRequest(formData)}
-                  disabled={!formData.contact_name || !formData.contact_phone || !formData.contact_email || submitting}
-                  className="text-white px-8 font-bold uppercase rounded-full"
-                  style={{ backgroundColor: 'var(--accent-coral)' }}
-                  size="lg"
-                >
+              <div className="flex justify-between mt-8 pt-6" style={{ borderTop: `2px solid ${colors.textMuted}` }}>
+               <Button
+                 variant="ghost"
+                 onClick={() => setShowContact(false)}
+                 className="gap-2 font-bold uppercase hover:opacity-70"
+                 style={{ color: colors.textDark }}
+               >
+                 <ArrowLeft className="w-4 h-4" />
+                 Wstecz
+               </Button>
+               <Button
+                 onClick={() => submitRequest(formData)}
+                 disabled={!formData.contact_name || !formData.contact_phone || !formData.contact_email || submitting}
+                 className="text-white px-8 font-bold uppercase rounded-full hover:opacity-90"
+                 style={{ backgroundColor: colors.accentCoral }}
+                 size="lg"
+               >
                   {submitting ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin mr-2" />
