@@ -440,8 +440,61 @@ Wyciągnij:
               <h3 className="font-semibold mb-2" style={{ color: 'var(--text-dark)' }}>Doświadczeni</h3>
               <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Ponad 500 udanych imprez za nami</p>
             </motion.div>
+            </motion.div>
+          </>
+        ) : showContact ? (
+          <div className="max-w-4xl mx-auto">
+            <StepContact data={formData} onChange={updateFormData} />
+            <div className="flex justify-between mt-8 pt-6 border-t border-slate-100 bg-white rounded-2xl p-6 shadow-lg">
+              <Button
+                variant="ghost"
+                onClick={() => setShowContact(false)}
+                className="gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Wstecz
+              </Button>
+              <Button
+                onClick={() => submitRequest(formData)}
+                disabled={!formData.contact_name || !formData.contact_phone || !formData.contact_email || submitting}
+                className="text-white px-8"
+                style={{ backgroundColor: 'var(--accent-pink)' }}
+                size="lg"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                    Wysyłam...
+                  </>
+                ) : (
+                  'Wyślij zgłoszenie'
+                )}
+              </Button>
+            </div>
           </div>
-        </motion.div>
+        ) : (
+          <div className="max-w-5xl mx-auto">
+            <ResultsDisplay
+              recommendations={recommendations}
+              inflatables={inflatables}
+              isLoading={loading}
+              onSubmitRequest={(selectedIds) => {
+                setSelectedInflatableIds(selectedIds);
+                setShowContact(true);
+              }}
+              submitting={submitting}
+              noResults={recommendations.filter(r => r.is_available).length === 0}
+            />
+            {!loading && (
+              <div className="mt-6">
+                <Button variant="ghost" onClick={() => { setShowResults(false); setRecommendations([]); }} className="gap-2">
+                  <ArrowLeft className="w-4 h-4" />
+                  Zmień datę lub opis
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Footer */}
