@@ -345,10 +345,10 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <Label className="text-base font-semibold mb-3 block">
+                    <Label className="text-base font-bold mb-3 block uppercase" style={{ color: 'var(--text-dark)' }}>
                       📅 Data imprezy *
                     </Label>
-                    <Card className="border-2 border-slate-100">
+                    <Card className="border-2" style={{ borderColor: 'var(--accent-purple)', backgroundColor: 'white' }}>
                       <CardContent className="p-4">
                         <Calendar
                           mode="single"
