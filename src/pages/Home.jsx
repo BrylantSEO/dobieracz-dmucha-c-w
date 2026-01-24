@@ -9,8 +9,11 @@ import { Calendar } from '@/components/ui/calendar';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
-import { PartyPopper, Sparkles, Calendar as CalendarIcon, Users, Zap, Phone, Wand2 } from 'lucide-react';
+import { PartyPopper, Sparkles, Calendar as CalendarIcon, Users, Zap, Phone, Wand2, Loader2, ArrowLeft } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import ResultsDisplay from '@/components/results/ResultsDisplay';
+import ConfirmationView from '@/components/results/ConfirmationView';
+import StepContact from '@/components/wizard/StepContact';
 
 export default function Home() {
   const navigate = useNavigate();
