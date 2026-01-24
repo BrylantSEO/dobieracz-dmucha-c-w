@@ -335,7 +335,8 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
                     onChange={(e) => updateFormData({ description: e.target.value })}
                     placeholder="Napisz o swojej imprezie... np: 'Urodziny 6-latka, około 15 dzieci, w ogrodzie. Szukamy czegoś kolorowego z zjeżdżalnią.'"
                     rows={4}
-                    className="text-base"
+                    className="text-base border-2"
+                    style={{ borderColor: 'var(--text-muted)', color: 'var(--text-dark)' }}
                   />
                   <p className="text-sm text-slate-500 mt-2">
                     Im więcej szczegółów, tym lepsze dopasowanie 🎯
