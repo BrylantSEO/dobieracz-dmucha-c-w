@@ -339,7 +339,7 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
 
               <div className="space-y-6">
                 <div>
-                  <Label className="text-base font-bold mb-3 block uppercase" style={{ color: 'var(--text-dark)' }}>
+                  <Label className="text-base font-bold mb-3 block uppercase" style={{ color: colors.textDark }}>
                     💬 Opisz swoją imprezę *
                   </Label>
                   <Textarea
@@ -348,7 +348,7 @@ Ułóż ranking TOP 6. Dla każdego podaj krótkie uzasadnienie (1-2 zdania po p
                     placeholder="Napisz o swojej imprezie... np: 'Urodziny 6-latka, około 15 dzieci, w ogrodzie. Szukamy czegoś kolorowego z zjeżdżalnią.'"
                     rows={4}
                     className="text-base border-2"
-                    style={{ borderColor: 'var(--text-muted)', color: 'var(--text-dark)' }}
+                    style={{ borderColor: colors.textMuted, color: colors.textDark }}
                   />
                   <p className="text-sm text-slate-500 mt-2">
                     Im więcej szczegółów, tym lepsze dopasowanie 🎯
