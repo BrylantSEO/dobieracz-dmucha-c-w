@@ -1,14 +1,49 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
-import { PartyPopper, Sparkles, Calendar, Users, Zap, Phone } from 'lucide-react';
+import { PartyPopper, Sparkles, Calendar as CalendarIcon, Users, Zap, Phone, Wand2 } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 
 export default function Home() {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    event_date: null,
+    description: '',
+    is_full_day: true,
+    city: '',
+    event_start_time: '',
+    event_end_time: '',
+    event_type: '',
+  });
+  const [inflatables, setInflatables] = useState([]);
+  const [showResults, setShowResults] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleStart = () => {
+  useEffect(() => {
+    const loadInflatables = async () => {
+      const data = await base44.entities.Inflatable.filter({ is_active: true });
+      setInflatables(data);
+    };
+    loadInflatables();
+  }, []);
+
+  const updateFormData = (updates) => {
+    setFormData(prev => ({ ...prev, ...updates }));
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.event_date || !formData.description.trim() || !formData.city.trim()) {
+      return;
+    }
+    setLoading(true);
     navigate(createPageUrl('Wizard'));
   };
 
