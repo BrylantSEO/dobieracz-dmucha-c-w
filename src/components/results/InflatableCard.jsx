@@ -141,27 +141,6 @@ export default function InflatableCard({
       <div className="p-5">
         <h3 className="text-lg font-bold text-slate-800 mb-2">{inflatable.name}</h3>
         
-        <div className="flex flex-wrap gap-2 mb-4">
-          <Badge variant="outline" className="text-xs">
-            <Baby className="w-3 h-3 mr-1" />
-            {inflatable.age_min || 3}-{inflatable.age_max || 99} lat
-          </Badge>
-          <Badge variant="outline" className="text-xs">
-            <Users className="w-3 h-3 mr-1" />
-            max {inflatable.max_capacity || '?'} osób
-          </Badge>
-          <Badge variant="outline" className="text-xs">
-            <Ruler className="w-3 h-3 mr-1" />
-            {inflatable.length_m || '?'}×{inflatable.width_m || '?'}m
-          </Badge>
-          {inflatable.requires_power && (
-            <Badge variant="outline" className="text-xs">
-              <Zap className="w-3 h-3 mr-1" />
-              Prąd
-            </Badge>
-          )}
-        </div>
-
         <p className="text-sm text-slate-500 mb-4 line-clamp-2">
           {inflatable.short_description || inflatable.description}
         </p>
@@ -172,31 +151,12 @@ export default function InflatableCard({
               ✨ Dlaczego polecamy
             </p>
             <div className="space-y-1">
-              {reasons.slice(0, 3).map((reason, idx) => (
+              {reasons.slice(0, 2).map((reason, idx) => (
                 <div key={idx} className="flex items-start gap-1.5">
                   <span className="text-violet-500 mt-0.5">•</span>
                   <span className="text-xs text-violet-700">{reason}</span>
                 </div>
               ))}
-            </div>
-          </div>
-        )}
-
-        {inflatable.price_for_hours && Object.keys(inflatable.price_for_hours).length > 0 && (
-          <div className="mb-4 p-3 bg-slate-50 rounded-xl">
-            <p className="text-xs font-medium text-slate-700 mb-2">Ceny za wynajem:</p>
-            <div className="grid grid-cols-3 gap-2">
-              {[3, 4, 5, 6, 8].map((hours) => {
-                const price = inflatable.price_for_hours?.[`${hours}h`];
-                return price ? (
-                  <div key={hours} className="text-center">
-                    <p className="text-xs text-slate-600">{hours}h</p>
-                    <p className="text-sm font-bold text-slate-800">
-                      {price.toLocaleString('pl-PL')} zł
-                    </p>
-                  </div>
-                ) : null;
-              })}
             </div>
           </div>
         )}
@@ -208,12 +168,6 @@ export default function InflatableCard({
               {price?.toLocaleString('pl-PL')} <span className="text-sm font-normal text-slate-500">zł</span>
             </p>
           </div>
-          {inflatable.setup_time_minutes && (
-            <div className="flex items-center gap-1 text-xs text-slate-500">
-              <Clock className="w-3 h-3" />
-              Montaż ~{inflatable.setup_time_minutes} min
-            </div>
-          )}
         </div>
 
         {!isAvailable && eventDate && (

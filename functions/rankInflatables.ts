@@ -227,6 +227,17 @@ Deno.serve(async (req) => {
         .map(tagId => tagsById[tagId])
         .filter(Boolean);
       
+      // Mapowanie user-friendly reasons
+      const eventTypeLabels = {
+        'birthday': 'urodziny',
+        'przedszkole': 'przedszkole',
+        'school_event': 'wydarzenie szkolne',
+        'festival': 'festyn',
+        'corporate_event': 'imprezę firmową',
+        'communion': 'komunię',
+        'wedding': 'wesele'
+      };
+      
       // Scoring po tagach
       inflatableTags.forEach(tag => {
         const tagKey = `${tag.group}:${tag.name}`;
@@ -234,28 +245,47 @@ Deno.serve(async (req) => {
         // Boosty
         if (config.boosts[tagKey]) {
           score += config.boosts[tagKey];
-          reasons.push(`${tag.name} (+${config.boosts[tagKey]})`);
+          
+          // User-friendly reason
+          if (tag.group === 'EVENT') {
+            const eventLabel = eventTypeLabels[eventType] || 'to wydarzenie';
+            reasons.push(`Doskonały wybór na ${eventLabel}`);
+          } else if (tag.group === 'AGE') {
+            reasons.push(`Idealny dla tej grupy wiekowej`);
+          } else if (tag.group === 'MECHANIC') {
+            if (tag.name === 'tor przeszkód') {
+              reasons.push(`Świetny tor przeszkód - pełen wyzwań`);
+            } else if (tag.name === 'zjeżdżalnia') {
+              reasons.push(`Ekscytująca zjeżdżalnia - gwarantowana frajda`);
+            } else {
+              reasons.push(`${tag.name} - świetna mechanika`);
+            }
+          } else if (tag.group === 'INTENT') {
+            if (tag.name === 'rywalizacja') {
+              reasons.push(`Wspaniała zabawa rywalizacyjna`);
+            } else {
+              reasons.push(`Odpowiedni charakter zabawy`);
+            }
+          }
         }
         
-        // Kary
+        // Kary - nie pokazujemy użytkownikowi
         if (config.penalties[tagKey]) {
-          score += config.penalties[tagKey]; // Już ujemne
-          penalties.push(`${tag.name} (${config.penalties[tagKey]})`);
+          score += config.penalties[tagKey];
         }
       });
       
-      // NOWE: Scoring po rywalizacji
+      // Scoring po rywalizacji
       if (isCompetitive !== undefined) {
         if (isCompetitive && inf.is_competitive) {
           score += 35;
-          reasons.push('Rywalizacja (+35)');
+          reasons.push('Świetny wybór do rywalizacji i zawodów');
         } else if (isCompetitive && !inf.is_competitive) {
           score -= 15;
-          penalties.push('Nie rywalizacyjny (-15)');
         }
       }
       
-      // NOWE: Scoring po intensywności
+      // Scoring po intensywności
       if (intensity && inf.intensity) {
         const intensityMap = { LOW: 0, MEDIUM: 1, HIGH: 2 };
         const userLevel = intensityMap[intensity];
@@ -263,14 +293,17 @@ Deno.serve(async (req) => {
         
         if (userLevel === infLevel) {
           score += 20;
-          const intensityLabels = { LOW: 'Spokojne', MEDIUM: 'Średnie', HIGH: 'Hardcore' };
-          reasons.push(`${intensityLabels[intensity]} (+20)`);
+          if (intensity === 'LOW') {
+            reasons.push('Spokojny i bezpieczny - idealne dla młodszych dzieci');
+          } else if (intensity === 'MEDIUM') {
+            reasons.push('Nie za ekstremalne - bezpieczna dawka adrenaliny');
+          } else if (intensity === 'HIGH') {
+            reasons.push('Hardcore! Dla prawdziwych szukających wrażeń');
+          }
         } else if (Math.abs(userLevel - infLevel) === 1) {
           score += 5;
         } else {
           score -= 25;
-          const intensityLabels = { LOW: 'Spokojne', MEDIUM: 'Średnie', HIGH: 'Hardcore' };
-          penalties.push(`Intensywność: ${intensityLabels[inf.intensity]} (-25)`);
         }
       }
       
