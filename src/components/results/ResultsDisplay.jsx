@@ -93,7 +93,7 @@ export default function ResultsDisplay({
                   transition={{ delay: index * 0.1 }}
                 >
                   <InflatableCard
-                     inflatable={inflatable}
+                     inflatable={rec.inflatable || inflatable}
                      recommendation={rec}
                      isSelected={selectedIds.includes(rec.inflatable_id)}
                      onToggleSelect={toggleSelect}
@@ -117,7 +117,7 @@ export default function ResultsDisplay({
                 return (
                   <InflatableCard
                      key={rec.inflatable_id}
-                     inflatable={inflatable}
+                     inflatable={rec.inflatable || inflatable}
                      recommendation={rec}
                      showCheckbox={false}
                      eventDate={sessionStorage.getItem('eventDate')}

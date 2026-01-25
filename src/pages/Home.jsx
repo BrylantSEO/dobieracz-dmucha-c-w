@@ -25,6 +25,8 @@ export default function Home() {
     event_start_time: '',
     event_end_time: '',
     event_type: '',
+    age_min: '',
+    age_max: '',
   });
   const [inflatables, setInflatables] = useState([]);
   const [showResults, setShowResults] = useState(false);
@@ -152,37 +154,56 @@ Wyciągnij:
   };
 
   const handleSubmit = async () => {
-    if (!formData.event_date || !formData.description.trim() || !formData.city.trim()) {
+    if (!formData.event_date || !formData.city.trim()) {
       return;
     }
     setLoading(true);
     setShowResults(true);
 
-    const extractedInfo = await extractEventInfo(formData.description);
-    
-    const recs = [];
-    for (const inflatable of inflatables) {
-      if (extractedInfo.is_outdoor === false && !inflatable.indoor_suitable) continue;
-      if (extractedInfo.is_outdoor && !inflatable.outdoor_suitable) continue;
-
-      const isAvailable = await checkAvailability(inflatable.id, formData.event_date);
-      const { score, reasons } = calculateScore(inflatable, extractedInfo);
-
-      recs.push({
-        inflatable_id: inflatable.id,
-        is_available: isAvailable,
-        score,
-        reasons,
-        calculated_price: inflatable.base_price,
+    try {
+      // Użyj nowej funkcji rankingowej
+      const ageMin = formData.age_min ? parseInt(formData.age_min) : undefined;
+      const ageMax = formData.age_max ? parseInt(formData.age_max) : (ageMin ? ageMin : undefined);
+      
+      const response = await base44.functions.invoke('rankInflatables', {
+        eventType: formData.event_type,
+        ageMin: ageMin,
+        ageMax: ageMax || ageMin,
+        isOutdoor: true, // Większość wynajmów na zewnątrz
+        eventDate: formData.event_date
       });
+
+      setRecommendations(response.data.results || []);
+    } catch (error) {
+      console.error('Ranking error:', error);
+      // Fallback do starego systemu jeśli backend function nie działa
+      const extractedInfo = await extractEventInfo(formData.description);
+      
+      const recs = [];
+      for (const inflatable of inflatables) {
+        if (extractedInfo.is_outdoor === false && !inflatable.indoor_suitable) continue;
+        if (extractedInfo.is_outdoor && !inflatable.outdoor_suitable) continue;
+
+        const isAvailable = await checkAvailability(inflatable.id, formData.event_date);
+        const { score, reasons } = calculateScore(inflatable, extractedInfo);
+
+        recs.push({
+          inflatable_id: inflatable.id,
+          is_available: isAvailable,
+          score,
+          reasons,
+          calculated_price: inflatable.base_price,
+        });
+      }
+
+      recs.sort((a, b) => {
+        if (a.is_available !== b.is_available) return b.is_available ? 1 : -1;
+        return b.score - a.score;
+      });
+
+      setRecommendations(recs.slice(0, 10));
     }
-
-    recs.sort((a, b) => {
-      if (a.is_available !== b.is_available) return b.is_available ? 1 : -1;
-      return b.score - a.score;
-    });
-
-    setRecommendations(recs.slice(0, 10));
+    
     setLoading(false);
   };
 
@@ -299,7 +320,7 @@ Wyciągnij:
                   </Button>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-100">
+                <div className="grid md:grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-100">
                   <Input
                     value={formData.city}
                     onChange={(e) => updateFormData({ city: e.target.value })}
@@ -312,20 +333,41 @@ Wyciągnij:
                     onChange={(e) => updateFormData({ event_date: e.target.value })}
                     className="text-base"
                   />
+                </div>
+                <div className="grid md:grid-cols-3 gap-3 mt-3">
                   <Select value={formData.event_type} onValueChange={(v) => updateFormData({ event_type: v })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Typ imprezy" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="birthday">Urodziny</SelectItem>
-                      <SelectItem value="corporate_picnic">Piknik firmowy</SelectItem>
-                      <SelectItem value="festival">Festiwal</SelectItem>
+                      <SelectItem value="przedszkole">Przedszkole</SelectItem>
+                      <SelectItem value="school_event">Szkoła/Półkolonie</SelectItem>
+                      <SelectItem value="festival">Festyn/Piknik</SelectItem>
+                      <SelectItem value="corporate_event">Event firmowy</SelectItem>
                       <SelectItem value="communion">Komunia</SelectItem>
                       <SelectItem value="wedding">Wesele</SelectItem>
-                      <SelectItem value="school_event">Impreza szkolna</SelectItem>
                       <SelectItem value="other">Inne</SelectItem>
                     </SelectContent>
                   </Select>
+                  <Input
+                    type="number"
+                    value={formData.age_min}
+                    onChange={(e) => updateFormData({ age_min: e.target.value })}
+                    placeholder="Wiek od"
+                    min="2"
+                    max="99"
+                    className="text-base"
+                  />
+                  <Input
+                    type="number"
+                    value={formData.age_max}
+                    onChange={(e) => updateFormData({ age_max: e.target.value })}
+                    placeholder="Wiek do"
+                    min="2"
+                    max="99"
+                    className="text-base"
+                  />
                 </div>
               </div>
             </motion.div>
