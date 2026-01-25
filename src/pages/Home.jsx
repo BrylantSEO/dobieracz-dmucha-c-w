@@ -413,7 +413,29 @@ Wyciągnij:
                 Wstecz
               </Button>
               <Button
-                onClick={() => submitRequest(formData)}
+                onClick={() => {
+                  // Walidacja przed wysłaniem
+                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                  const phoneRegex = /^(\+48)?[0-9]{9}$/;
+
+                  if (!formData.contact_name || formData.contact_name.length < 2) {
+                    alert('Podaj prawidłowe imię i nazwisko');
+                    return;
+                  }
+
+                  if (!emailRegex.test(formData.contact_email)) {
+                    alert('Podaj prawidłowy adres email');
+                    return;
+                  }
+
+                  const cleanedPhone = formData.contact_phone.replace(/\s/g, '');
+                  if (!phoneRegex.test(cleanedPhone)) {
+                    alert('Podaj prawidłowy numer telefonu (9 cyfr)');
+                    return;
+                  }
+
+                  submitRequest(formData);
+                }}
                 disabled={!formData.contact_name || !formData.contact_phone || !formData.contact_email || submitting}
                 className="text-white px-8"
                 style={{ backgroundColor: 'var(--accent-pink)' }}
