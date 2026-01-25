@@ -14,6 +14,9 @@ import { base44 } from '@/api/base44Client';
 import ResultsDisplay from '@/components/results/ResultsDisplay';
 import ConfirmationView from '@/components/results/ConfirmationView';
 import StepContact from '@/components/wizard/StepContact';
+import AdvancedOptions from '@/components/home/AdvancedOptions';
+import TestimonialsCarousel from '@/components/home/TestimonialsCarousel';
+import PopularInflatables from '@/components/home/PopularInflatables';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -306,101 +309,51 @@ Wyciągnij:
               </p>
 
               {/* Quick Form */}
-              <div className="bg-white rounded-2xl shadow-xl p-4 max-w-3xl mx-auto">
-                <div className="flex flex-col md:flex-row gap-3">
+              <div className="bg-white rounded-2xl shadow-xl p-6 max-w-3xl mx-auto">
+                <div className="flex flex-col md:flex-row gap-3 mb-4">
                   <Textarea
                     value={formData.description}
                     onChange={(e) => updateFormData({ description: e.target.value })}
                     placeholder="Opisz swoją imprezę... np: Urodziny synka w ogrodzie, będzie 15 dzieciaków z przedszkola"
-                    rows={1}
-                    className="flex-1 text-base border-0 focus-visible:ring-0 resize-none"
+                    rows={2}
+                    className="flex-1 text-base"
                   />
-                  <Button
-                    onClick={handleSubmit}
-                    disabled={!formData.event_date || !formData.description.trim() || !formData.city.trim() || loading}
-                    className="bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-semibold px-8 h-12"
-                  >
-                    {loading ? 'Szukam...' : 'Wycena'}
-                  </Button>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-100">
+                <div className="grid md:grid-cols-2 gap-3">
                   <Input
                     value={formData.city}
                     onChange={(e) => updateFormData({ city: e.target.value })}
-                    placeholder="Miasto"
-                    className="text-base"
+                    placeholder="Miasto *"
+                    className="text-base h-12"
                   />
                   <Input
                     type="date"
                     value={formData.event_date || ''}
                     onChange={(e) => updateFormData({ event_date: e.target.value })}
-                    className="text-base"
+                    className="text-base h-12"
                   />
                 </div>
-                <div className="grid md:grid-cols-3 gap-3 mt-3">
-                  <Select value={formData.event_type} onValueChange={(v) => updateFormData({ event_type: v })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Typ imprezy" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="birthday">Urodziny</SelectItem>
-                      <SelectItem value="przedszkole">Przedszkole</SelectItem>
-                      <SelectItem value="school_event">Szkoła/Półkolonie</SelectItem>
-                      <SelectItem value="festival">Festyn/Piknik</SelectItem>
-                      <SelectItem value="corporate_event">Event firmowy</SelectItem>
-                      <SelectItem value="communion">Komunia</SelectItem>
-                      <SelectItem value="wedding">Wesele</SelectItem>
-                      <SelectItem value="other">Inne</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    type="number"
-                    value={formData.age_min}
-                    onChange={(e) => updateFormData({ age_min: e.target.value })}
-                    placeholder="Wiek od"
-                    min="2"
-                    max="99"
-                    className="text-base"
-                  />
-                  <Input
-                    type="number"
-                    value={formData.age_max}
-                    onChange={(e) => updateFormData({ age_max: e.target.value })}
-                    placeholder="Wiek do"
-                    min="2"
-                    max="99"
-                    className="text-base"
-                  />
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-3 mt-3">
-                  <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
-                    <input
-                      type="checkbox"
-                      id="is_competitive"
-                      checked={formData.is_competitive}
-                      onChange={(e) => updateFormData({ is_competitive: e.target.checked })}
-                      className="w-5 h-5 rounded border-2 border-purple-400 text-purple-600 focus:ring-2 focus:ring-purple-300"
-                    />
-                    <label htmlFor="is_competitive" className="text-sm font-medium text-slate-800 cursor-pointer">
-                      🏆 Rywalizacja (wyścigi, tory)
-                    </label>
-                  </div>
-                  <Select value={formData.intensity} onValueChange={(v) => updateFormData({ intensity: v })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Intensywność" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="LOW">Spokojne</SelectItem>
-                      <SelectItem value="MEDIUM">Średnie (nie ekstremalne)</SelectItem>
-                      <SelectItem value="HIGH">Hardcore (ekstremalne)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  </div>
+
+                <AdvancedOptions formData={formData} updateFormData={updateFormData} />
+
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!formData.event_date || !formData.description.trim() || !formData.city.trim() || loading}
+                  className="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-semibold h-14 text-lg mt-4"
+                >
+                  {loading ? 'Szukam...' : '✨ Pokaż najlepsze propozycje'}
+                </Button>
               </div>
             </motion.div>
+
+            {/* Testimonials */}
+            <TestimonialsCarousel />
+
+            {/* Popular Inflatables */}
+            <PopularInflatables />
             </>
-        ) : showContact ? (
+            ) : showContact ? (
           <div className="max-w-4xl mx-auto">
             <StepContact data={formData} onChange={updateFormData} />
             <div className="flex justify-between mt-8 pt-6 border-t border-slate-100 bg-white rounded-2xl p-6 shadow-lg">
