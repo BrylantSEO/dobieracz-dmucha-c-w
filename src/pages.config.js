@@ -6,8 +6,8 @@ import AdminInflatables from './pages/AdminInflatables';
 import AdminQuoteDetails from './pages/AdminQuoteDetails';
 import AdminQuotes from './pages/AdminQuotes';
 import AdminTags from './pages/AdminTags';
-import Wizard from './pages/Wizard';
 import Home from './pages/Home';
+import Wizard from './pages/Wizard';
 import __Layout from './Layout.jsx';
 
 
@@ -20,8 +20,8 @@ export const PAGES = {
     "AdminQuoteDetails": AdminQuoteDetails,
     "AdminQuotes": AdminQuotes,
     "AdminTags": AdminTags,
-    "Wizard": Wizard,
     "Home": Home,
+    "Wizard": Wizard,
 }
 
 export const pagesConfig = {

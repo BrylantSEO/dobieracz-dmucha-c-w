@@ -497,11 +497,10 @@ Wyciągnij:
           </div>
           )}
           </div>
-          </div>
 
           {/* Footer */}
-      <footer className="border-t mt-20" style={{ borderColor: 'var(--text-muted)', backgroundColor: '#FFFFFF' }}>
-        <div className="container mx-auto px-4 py-8">
+          <footer className="border-t mt-20" style={{ borderColor: 'var(--text-muted)', backgroundColor: '#FFFFFF' }}>
+          <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm" style={{ color: 'var(--text-muted)' }}>
             <div>© 2026 Dobieracz Dmuchańców. Wszystkie prawa zastrzeżone.</div>
             <div className="flex gap-6">
@@ -511,8 +510,8 @@ Wyciągnij:
               <a href="mailto:kontakt@dmucha.pl" className="transition-colors" style={{ color: 'var(--text-muted)' }} onMouseEnter={(e) => e.target.style.color = 'var(--accent-pink)'} onMouseLeave={(e) => e.target.style.color = 'var(--text-muted)'}>✉️ kontakt@dmucha.pl</a>
             </div>
           </div>
-        </div>
-      </footer>
-    </div>
+          </div>
+          </footer>
+          </div>
   );
 }
