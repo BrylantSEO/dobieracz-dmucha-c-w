@@ -26,14 +26,16 @@ const RANKING_CONFIG = {
     boosts: {
       'EVENT:szkoła/półkolonie': 30,
       'AGE:szkoła (6-10)': 25,
-      'MECHANIC:tor przeszkód': 10,
+      'MECHANIC:tor przeszkód': 20,
+      'MECHANIC:duel': 15,
       'MECHANIC:zjeżdżalnia': 8,
       'INTENT:średnie': 10,
       'INTENT:rywalizacja': 5
     },
     penalties: {
       'AGE:dla maluchów (2-4)': -10,
-      'INTENT:spokojne': -5
+      'INTENT:spokojne': -10,
+      'MECHANIC:zjeżdżalnia': -10  // Tylko jeśli nie competitive
     }
   },
   
@@ -138,7 +140,9 @@ Deno.serve(async (req) => {
       isOutdoor, 
       spaceLength, 
       spaceWidth,
-      eventDate 
+      eventDate,
+      isCompetitive,
+      intensity 
     } = await req.json();
 
     // Krok 1: Pobranie wszystkich aktywnych dmuchańców
@@ -239,6 +243,36 @@ Deno.serve(async (req) => {
           penalties.push(`${tag.name} (${config.penalties[tagKey]})`);
         }
       });
+      
+      // NOWE: Scoring po rywalizacji
+      if (isCompetitive !== undefined) {
+        if (isCompetitive && inf.is_competitive) {
+          score += 35;
+          reasons.push('Rywalizacja (+35)');
+        } else if (isCompetitive && !inf.is_competitive) {
+          score -= 15;
+          penalties.push('Nie rywalizacyjny (-15)');
+        }
+      }
+      
+      // NOWE: Scoring po intensywności
+      if (intensity && inf.intensity) {
+        const intensityMap = { LOW: 0, MEDIUM: 1, HIGH: 2 };
+        const userLevel = intensityMap[intensity];
+        const infLevel = intensityMap[inf.intensity];
+        
+        if (userLevel === infLevel) {
+          score += 20;
+          const intensityLabels = { LOW: 'Spokojne', MEDIUM: 'Średnie', HIGH: 'Hardcore' };
+          reasons.push(`${intensityLabels[intensity]} (+20)`);
+        } else if (Math.abs(userLevel - infLevel) === 1) {
+          score += 5;
+        } else {
+          score -= 25;
+          const intensityLabels = { LOW: 'Spokojne', MEDIUM: 'Średnie', HIGH: 'Hardcore' };
+          penalties.push(`Intensywność: ${intensityLabels[inf.intensity]} (-25)`);
+        }
+      }
       
       // Bonus za overlap wieku
       if (ageMin !== undefined && ageMax !== undefined && inf.age_min && inf.age_max) {

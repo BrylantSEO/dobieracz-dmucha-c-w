@@ -27,6 +27,8 @@ export default function Home() {
     event_type: '',
     age_min: '',
     age_max: '',
+    is_competitive: false,
+    intensity: 'MEDIUM',
   });
   const [inflatables, setInflatables] = useState([]);
   const [showResults, setShowResults] = useState(false);
@@ -169,8 +171,10 @@ Wyciągnij:
         eventType: formData.event_type,
         ageMin: ageMin,
         ageMax: ageMax || ageMin,
-        isOutdoor: true, // Większość wynajmów na zewnątrz
-        eventDate: formData.event_date
+        isOutdoor: true,
+        eventDate: formData.event_date,
+        isCompetitive: formData.is_competitive,
+        intensity: formData.intensity
       });
 
       setRecommendations(response.data.results || []);
@@ -368,7 +372,31 @@ Wyciągnij:
                     max="99"
                     className="text-base"
                   />
-                </div>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-3 mt-3">
+                  <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                    <input
+                      type="checkbox"
+                      id="is_competitive"
+                      checked={formData.is_competitive}
+                      onChange={(e) => updateFormData({ is_competitive: e.target.checked })}
+                      className="w-5 h-5 rounded border-2 border-purple-400 text-purple-600 focus:ring-2 focus:ring-purple-300"
+                    />
+                    <label htmlFor="is_competitive" className="text-sm font-medium text-slate-800 cursor-pointer">
+                      🏆 Rywalizacja (wyścigi, tory)
+                    </label>
+                  </div>
+                  <Select value={formData.intensity} onValueChange={(v) => updateFormData({ intensity: v })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Intensywność" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="LOW">Spokojne</SelectItem>
+                      <SelectItem value="MEDIUM">Średnie (nie ekstremalne)</SelectItem>
+                      <SelectItem value="HIGH">Hardcore (ekstremalne)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  </div>
               </div>
             </motion.div>
             </>
