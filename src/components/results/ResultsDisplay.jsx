@@ -130,7 +130,7 @@ export default function ResultsDisplay({
       </div>
 
       {/* Pricing Sidebar */}
-      <div className="lg:w-96">
+      <div className="lg:w-80">
         <PricingSidebar
           selectedInflatables={selectedInflatables}
           onRemove={(id) => setSelectedIds(selectedIds.filter(i => i !== id))}
