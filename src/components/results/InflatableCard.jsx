@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { 
   Users, Ruler, Zap, Clock, Star,
-  CheckCircle2, XCircle, Baby, ChevronLeft, ChevronRight, Bell
+  CheckCircle2, XCircle, Baby, ChevronLeft, ChevronRight, Bell, Eye
 } from 'lucide-react';
 import NotificationModal from './NotificationModal';
+import InflatableDetailsModal from './InflatableDetailsModal';
 
 export default function InflatableCard({ 
   inflatable, 
@@ -19,6 +20,7 @@ export default function InflatableCard({
 }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   
   const isAvailable = recommendation?.is_available !== false;
   const score = recommendation?.score || 0;
@@ -108,17 +110,31 @@ export default function InflatableCard({
             </Badge>
           </div>
         )}
-        <div className={cn(
-          "absolute bottom-3 right-3 px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5",
-          isAvailable 
-            ? "bg-emerald-500 text-white" 
-            : "bg-red-500 text-white"
-        )}>
-          {isAvailable ? (
-            <><CheckCircle2 className="w-4 h-4" /> Dostępny</>
-          ) : (
-            <><XCircle className="w-4 h-4" /> Niedostępny</>
-          )}
+        <div className="absolute bottom-3 right-3 flex items-center gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowDetailsModal(true);
+            }}
+            className="px-3 py-1.5 bg-white/95 hover:bg-white rounded-full shadow-lg transition flex items-center gap-1.5"
+            title="Pokaż szczegóły"
+          >
+            <Eye className="w-4 h-4 text-slate-700" />
+            <span className="text-sm font-medium text-slate-700">Szczegóły</span>
+          </button>
+          
+          <div className={cn(
+            "px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5",
+            isAvailable 
+              ? "bg-emerald-500 text-white" 
+              : "bg-red-500 text-white"
+          )}>
+            {isAvailable ? (
+              <><CheckCircle2 className="w-4 h-4" /> Dostępny</>
+            ) : (
+              <><XCircle className="w-4 h-4" /> Niedostępny</>
+            )}
+          </div>
         </div>
       </div>
 
@@ -223,6 +239,15 @@ export default function InflatableCard({
           onClose={() => setShowNotificationModal(false)}
         />
       )}
+
+      <InflatableDetailsModal
+        inflatable={inflatable}
+        recommendation={recommendation}
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        onSelect={onToggleSelect}
+        isSelected={isSelected}
+      />
     </div>
   );
 }
