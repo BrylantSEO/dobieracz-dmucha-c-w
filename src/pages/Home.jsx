@@ -230,220 +230,107 @@ Wyciągnij:
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <div className="container mx-auto px-4 py-12 md:py-20">
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <header className="bg-white border-b border-slate-200">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="text-2xl font-bold text-slate-900">Dmucha.</div>
+          <div className="flex items-center gap-8">
+            <nav className="hidden md:flex gap-8 text-sm text-slate-600">
+              <a href="#" className="hover:text-slate-900 transition">Strona główna</a>
+              <a href="#" className="hover:text-slate-900 transition">Oferta</a>
+              <a href="#" className="hover:text-slate-900 transition">O nas</a>
+              <a href="#" className="hover:text-slate-900 transition">Blog</a>
+            </nav>
+            <Button className="bg-cyan-400 hover:bg-cyan-500 text-slate-900 font-medium">
+              Kontakt
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-6 py-16 md:py-24">
         {!showResults ? (
           <>
-            {/* Header */}
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center mb-12"
-            >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6" style={{ backgroundColor: '#F5E6E9', color: 'var(--accent-pink)' }}>
-                <PartyPopper className="w-4 h-4" />
-                Wynajmem dmuchańców na każdą okazję
-              </div>
-            </motion.div>
-
-            {/* Main Content */}
+            {/* Hero Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="max-w-4xl mx-auto"
+              className="max-w-5xl mx-auto text-center mb-16"
             >
-              <h1 className="text-4xl md:text-6xl font-bold text-center mb-6" style={{ color: 'var(--text-dark)' }}>
-                Znajdziemy idealnego
-                <br />
-                <span style={{ color: 'var(--accent-pink)' }}>dmuchańca dla Ciebie</span>
-              </h1>
-          
-              <p className="text-lg md:text-xl text-center mb-12 max-w-2xl mx-auto" style={{ color: 'var(--text-muted)' }}>
-                Powiedz nam o swojej imprezie, a nasz inteligentny system dobierze najlepsze atrakcje dmuchane. Szybko, prosto i bez zbędnych formalności.
-              </p>
-
-              {/* Form */}
-              <div className="bg-white rounded-2xl shadow-lg p-8 mb-16 max-w-3xl mx-auto">
-                <div className="space-y-6">
-                  <div>
-                    <Label className="text-base font-semibold mb-3 flex items-center gap-2" style={{ color: 'var(--text-dark)' }}>
-                      <span>💬</span>
-                      Opisz swoją imprezę *
-                    </Label>
-                    <Textarea
-                      value={formData.description}
-                      onChange={(e) => updateFormData({ description: e.target.value })}
-                      placeholder="Napisz o swojej imprezie... np: 'Urodziny 6-latka, około 15 dzieci, w ogrodzie. Szukamy czegoś kolorowego z zjeżdżalnią.'"
-                      rows={4}
-                      className="text-base"
-                    />
-                    <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                      Im więcej szczegółów, tym lepsze dopasowanie 🎯
-                    </p>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <Label className="text-base font-semibold mb-3 flex items-center gap-2" style={{ color: 'var(--text-dark)' }}>
-                        <span>📅</span>
-                        Data imprezy *
-                      </Label>
-                      <Card className="border-2 border-slate-100">
-                        <CardContent className="p-4">
-                          <Calendar
-                            mode="single"
-                            selected={formData.event_date ? new Date(formData.event_date) : undefined}
-                            onSelect={(date) => updateFormData({ event_date: date?.toISOString().split('T')[0] })}
-                            disabled={(date) => date < new Date()}
-                            className="rounded-md"
-                          />
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div>
-                        <Label className="text-base font-semibold mb-3 block" style={{ color: 'var(--text-dark)' }}>
-                          📍 Miasto *
-                        </Label>
-                        <Input
-                          value={formData.city}
-                          onChange={(e) => updateFormData({ city: e.target.value })}
-                          placeholder="np. Warszawa"
-                          className="text-base"
-                        />
-                      </div>
-
-                      <div>
-                        <Label className="text-base font-semibold mb-3 block" style={{ color: 'var(--text-dark)' }}>
-                          🎉 Typ imprezy (opcjonalnie)
-                        </Label>
-                        <Select value={formData.event_type} onValueChange={(v) => updateFormData({ event_type: v })}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Wybierz typ..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="birthday">Urodziny</SelectItem>
-                            <SelectItem value="corporate_picnic">Piknik firmowy</SelectItem>
-                            <SelectItem value="festival">Festiwal</SelectItem>
-                            <SelectItem value="communion">Komunia</SelectItem>
-                            <SelectItem value="wedding">Wesele</SelectItem>
-                            <SelectItem value="school_event">Impreza szkolna</SelectItem>
-                            <SelectItem value="other">Inne</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div>
-                        <Label className="text-base font-semibold mb-3 block" style={{ color: 'var(--text-dark)' }}>
-                          ⏰ Godziny wynajmu (opcjonalnie)
-                        </Label>
-                        <div className="flex gap-2">
-                          <Input
-                            type="time"
-                            value={formData.event_start_time}
-                            onChange={(e) => updateFormData({ event_start_time: e.target.value })}
-                            className="text-base"
-                          />
-                          <span className="flex items-center text-slate-500">-</span>
-                          <Input
-                            type="time"
-                            value={formData.event_end_time}
-                            onChange={(e) => updateFormData({ event_end_time: e.target.value })}
-                            className="text-base"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Button
-                    onClick={handleSubmit}
-                    disabled={!formData.event_date || !formData.description.trim() || !formData.city.trim() || loading}
-                    className="w-full text-white gap-2 px-8 py-6 text-lg"
-                    style={{ backgroundColor: 'var(--accent-pink)' }}
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        Szukam...
-                      </>
-                    ) : (
-                      <>
-                        <Wand2 className="w-5 h-5" />
-                        Znajdź idealne dmuchańce
-                      </>
-                    )}
-                  </Button>
+              <div className="relative inline-block mb-8">
+                <h1 className="text-5xl md:text-7xl font-bold text-slate-900 leading-tight">
+                  Najlepsze
+                  <br />
+                  Dmuchańce
+                  <br />
+                  Na Twoje
+                  <br />
+                  Wydarzenie
+                </h1>
+                <div className="absolute -top-4 -right-4 md:-right-12 bg-gradient-to-r from-pink-500 to-orange-500 text-white px-4 py-2 rounded-full text-xs md:text-sm font-medium shadow-lg rotate-3">
+                  ⭐ PROFESJONALNA OBSŁUGA
+                  <br />
+                  ⭐ 4.9 (500+ opinii)
                 </div>
               </div>
 
-              {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="grid grid-cols-3 gap-6 md:gap-12 py-12 border-y border-slate-200"
-          >
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold mb-2" style={{ color: 'var(--accent-pink)' }}>500+</div>
-              <div className="text-sm" style={{ color: 'var(--text-muted)' }}>Udanych imprez</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold mb-2" style={{ color: 'var(--accent-pink)' }}>50+</div>
-              <div className="text-sm" style={{ color: 'var(--text-muted)' }}>Atrakcji w ofercie</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl md:text-4xl font-bold mb-2" style={{ color: 'var(--accent-pink)' }}>100%</div>
-              <div className="text-sm" style={{ color: 'var(--text-muted)' }}>Zadowolonych klientów</div>
-            </div>
-          </motion.div>
+              <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-12">
+                Jesteśmy agencją wynajmu dmuchańców, która pomoże Ci stworzyć nowoczesną
+                i niezapomnianą imprezę. Porozmawiajmy.
+              </p>
 
-          {/* Features */}
-          <div className="grid md:grid-cols-3 gap-6 mt-16">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="text-center p-6"
-            >
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#F5E6E9' }}>
-                <Zap className="w-7 h-7" style={{ color: 'var(--accent-pink)' }} />
+              {/* Quick Form */}
+              <div className="bg-white rounded-2xl shadow-xl p-4 max-w-3xl mx-auto">
+                <div className="flex flex-col md:flex-row gap-3">
+                  <Textarea
+                    value={formData.description}
+                    onChange={(e) => updateFormData({ description: e.target.value })}
+                    placeholder="Opisz swoją imprezę... np: Urodziny synka w ogrodzie, będzie 15 dzieciaków z przedszkola"
+                    rows={1}
+                    className="flex-1 text-base border-0 focus-visible:ring-0 resize-none"
+                  />
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={!formData.event_date || !formData.description.trim() || !formData.city.trim() || loading}
+                    className="bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-semibold px-8 h-12"
+                  >
+                    {loading ? 'Szukam...' : 'Wycena'}
+                  </Button>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-3 mt-4 pt-4 border-t border-slate-100">
+                  <Input
+                    value={formData.city}
+                    onChange={(e) => updateFormData({ city: e.target.value })}
+                    placeholder="Miasto"
+                    className="text-base"
+                  />
+                  <Input
+                    type="date"
+                    value={formData.event_date || ''}
+                    onChange={(e) => updateFormData({ event_date: e.target.value })}
+                    className="text-base"
+                  />
+                  <Select value={formData.event_type} onValueChange={(v) => updateFormData({ event_type: v })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Typ imprezy" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="birthday">Urodziny</SelectItem>
+                      <SelectItem value="corporate_picnic">Piknik firmowy</SelectItem>
+                      <SelectItem value="festival">Festiwal</SelectItem>
+                      <SelectItem value="communion">Komunia</SelectItem>
+                      <SelectItem value="wedding">Wesele</SelectItem>
+                      <SelectItem value="school_event">Impreza szkolna</SelectItem>
+                      <SelectItem value="other">Inne</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <h3 className="font-semibold mb-2" style={{ color: 'var(--text-dark)' }}>Szybkie dopasowanie</h3>
-              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>System AI dobierze idealne dmuchańce w kilka sekund</p>
             </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="text-center p-6"
-            >
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#F5E6E9' }}>
-                <Calendar className="w-7 h-7" style={{ color: 'var(--accent-pink)' }} />
-              </div>
-              <h3 className="font-semibold mb-2" style={{ color: 'var(--text-dark)' }}>Sprawdzona dostępność</h3>
-              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Od razu widzisz co jest wolne w Twoim terminie</p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="text-center p-6"
-            >
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: '#F5E6E9' }}>
-                <Users className="w-7 h-7" style={{ color: 'var(--accent-pink)' }} />
-              </div>
-              <h3 className="font-semibold mb-2" style={{ color: 'var(--text-dark)' }}>Doświadczeni</h3>
-              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Ponad 500 udanych imprez za nami</p>
-              </motion.div>
-              </div>
-              </motion.div>
-              </>
-              ) : showContact ? (
+            </>
+        ) : showContact ? (
           <div className="max-w-4xl mx-auto">
             <StepContact data={formData} onChange={updateFormData} />
             <div className="flex justify-between mt-8 pt-6 border-t border-slate-100 bg-white rounded-2xl p-6 shadow-lg">
@@ -499,18 +386,18 @@ Wyciągnij:
           </div>
 
           {/* Footer */}
-          <footer className="border-t mt-20" style={{ borderColor: 'var(--text-muted)', backgroundColor: '#FFFFFF' }}>
-          <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm" style={{ color: 'var(--text-muted)' }}>
-            <div>© 2026 Dobieracz Dmuchańców. Wszystkie prawa zastrzeżone.</div>
-            <div className="flex gap-6">
-              <a href="tel:+48123456789" className="flex items-center gap-1 transition-colors" style={{ color: 'var(--text-muted)' }} onMouseEnter={(e) => e.target.style.color = 'var(--accent-pink)'} onMouseLeave={(e) => e.target.style.color = 'var(--text-muted)'}>
-                <Phone className="w-3 h-3" /> +48 123 456 789
-              </a>
-              <a href="mailto:kontakt@dmucha.pl" className="transition-colors" style={{ color: 'var(--text-muted)' }} onMouseEnter={(e) => e.target.style.color = 'var(--accent-pink)'} onMouseLeave={(e) => e.target.style.color = 'var(--text-muted)'}>✉️ kontakt@dmucha.pl</a>
+          <footer className="bg-white border-t border-slate-200 mt-24">
+            <div className="container mx-auto px-6 py-8">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
+                <div>© 2026 Dmucha. Wszystkie prawa zastrzeżone.</div>
+                <div className="flex gap-6">
+                  <a href="tel:+48123456789" className="flex items-center gap-1 hover:text-slate-900 transition">
+                    <Phone className="w-3 h-3" /> +48 123 456 789
+                  </a>
+                  <a href="mailto:kontakt@dmucha.pl" className="hover:text-slate-900 transition">✉️ kontakt@dmucha.pl</a>
+                </div>
+              </div>
             </div>
-          </div>
-          </div>
           </footer>
           </div>
   );
