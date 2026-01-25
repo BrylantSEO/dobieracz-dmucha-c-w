@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, Upload, X } from 'lucide-react';
 
 const types = [
@@ -60,6 +61,8 @@ export default function InflatableForm({ inflatable, tags, onClose }) {
     delivery_price: null,
     tag_ids: [],
     is_active: true,
+    is_competitive: false,
+    intensity: 'MEDIUM',
     ...inflatable,
   });
   const [uploading, setUploading] = useState(false);
@@ -384,6 +387,60 @@ export default function InflatableForm({ inflatable, tags, onClose }) {
               value={formData.delivery_price || ''}
               onChange={(e) => setFormData(prev => ({ ...prev, delivery_price: parseFloat(e.target.value) || null }))}
             />
+          </div>
+        </div>
+      </div>
+
+      {/* Rywalizacja i intensywność */}
+      <div className="border-t pt-6">
+        <h3 className="text-lg font-semibold mb-4">Dopasowanie do typu eventu</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex items-start gap-3 p-4 bg-purple-50 rounded-lg border border-purple-200">
+            <Checkbox
+              checked={formData.is_competitive || false}
+              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_competitive: checked }))}
+              id="is_competitive"
+            />
+            <div className="flex-1">
+              <Label htmlFor="is_competitive" className="font-semibold cursor-pointer">
+                🏆 Rywalizacja (dmuchaniec rywalizacyjny)
+              </Label>
+              <p className="text-xs text-slate-600 mt-1">
+                Tory przeszkód, wyścigi, duele, równoległe tory, konkurencje
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <Label>Intensywność</Label>
+            <Select 
+              value={formData.intensity || 'MEDIUM'} 
+              onValueChange={(value) => setFormData(prev => ({ ...prev, intensity: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Wybierz intensywność" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="LOW">
+                  <div>
+                    <div className="font-medium">Spokojne</div>
+                    <div className="text-xs text-slate-500">Przedszkole, spokojna zabawa</div>
+                  </div>
+                </SelectItem>
+                <SelectItem value="MEDIUM">
+                  <div>
+                    <div className="font-medium">Średnie (nie ekstremalne)</div>
+                    <div className="text-xs text-slate-500">Szkoła 6-10, bezpiecznie</div>
+                  </div>
+                </SelectItem>
+                <SelectItem value="HIGH">
+                  <div>
+                    <div className="font-medium">Hardcore (ekstremalne)</div>
+                    <div className="text-xs text-slate-500">Starszaki, młodzież, adrenalina</div>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
