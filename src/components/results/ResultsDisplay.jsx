@@ -81,7 +81,7 @@ export default function ResultsDisplay({
         )}
 
         {availableRecs.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {availableRecs.map((rec, index) => {
               const inflatable = inflatables.find(i => i.id === rec.inflatable_id);
               if (!inflatable) return null;
@@ -110,7 +110,7 @@ export default function ResultsDisplay({
             <h3 className="text-lg font-semibold text-slate-600 mb-4">
               Niedostępne w wybranym terminie
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {unavailableRecs.slice(0, 3).map((rec) => {
                 const inflatable = inflatables.find(i => i.id === rec.inflatable_id);
                 if (!inflatable) return null;

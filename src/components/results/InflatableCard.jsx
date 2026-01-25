@@ -156,26 +156,10 @@ export default function InflatableCard({
               ✨ Dlaczego polecamy
             </p>
             <div className="space-y-1">
-              {reasons.slice(0, 4).map((reason, idx) => (
+              {reasons.slice(0, 3).map((reason, idx) => (
                 <div key={idx} className="flex items-start gap-1.5">
                   <span className="text-violet-500 mt-0.5">•</span>
                   <span className="text-xs text-violet-700">{reason}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        
-        {recommendation?.penalties && recommendation.penalties.length > 0 && (
-          <div className="mb-4 p-3 bg-amber-50 rounded-xl border border-amber-100">
-            <p className="text-xs font-semibold text-amber-800 mb-2 flex items-center gap-1">
-              ⚠️ Uwaga
-            </p>
-            <div className="space-y-1">
-              {recommendation.penalties.slice(0, 2).map((penalty, idx) => (
-                <div key={idx} className="flex items-start gap-1.5">
-                  <span className="text-amber-500 mt-0.5">•</span>
-                  <span className="text-xs text-amber-700">{penalty}</span>
                 </div>
               ))}
             </div>

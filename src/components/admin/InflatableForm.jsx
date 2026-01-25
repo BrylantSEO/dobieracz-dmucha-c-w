@@ -95,6 +95,29 @@ export default function InflatableForm({ inflatable, tags, onClose }) {
     setUploading(false);
   };
 
+  const handleGalleryUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setUploading(true);
+    const uploadPromises = files.map(file => base44.integrations.Core.UploadFile({ file }));
+    const results = await Promise.all(uploadPromises);
+    const newUrls = results.map(r => r.file_url);
+    
+    setFormData(prev => ({
+      ...prev,
+      images: [...(prev.images || []), ...newUrls]
+    }));
+    setUploading(false);
+  };
+
+  const removeGalleryImage = (url) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter(img => img !== url)
+    }));
+  };
+
   const toggleTag = (tagId) => {
     setFormData(prev => ({
       ...prev,
@@ -173,27 +196,58 @@ export default function InflatableForm({ inflatable, tags, onClose }) {
         </div>
       </div>
 
-      {/* Image */}
-      <div>
-        <Label>Zdjęcie główne</Label>
-        <div className="flex items-center gap-4 mt-2">
-          {formData.main_image ? (
-            <div className="relative">
-              <img src={formData.main_image} className="w-24 h-24 object-cover rounded-lg" />
-              <button
-                type="button"
-                onClick={() => setFormData(prev => ({ ...prev, main_image: '' }))}
-                className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </div>
-          ) : (
-            <label className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-slate-50">
-              <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-              {uploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-6 h-6 text-slate-400" />}
+      {/* Images */}
+      <div className="space-y-4">
+        <div>
+          <Label>Zdjęcie główne</Label>
+          <div className="flex items-center gap-4 mt-2">
+            {formData.main_image ? (
+              <div className="relative">
+                <img src={formData.main_image} className="w-24 h-24 object-cover rounded-lg" />
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, main_image: '' }))}
+                  className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-slate-50">
+                <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                {uploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-6 h-6 text-slate-400" />}
+              </label>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <Label>Galeria zdjęć (dla lightboxa)</Label>
+          <div className="flex flex-wrap gap-3 mt-2">
+            {formData.images?.map((url, idx) => (
+              <div key={idx} className="relative">
+                <img src={url} className="w-20 h-20 object-cover rounded-lg" />
+                <button
+                  type="button"
+                  onClick={() => removeGalleryImage(url)}
+                  className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+            <label className="flex flex-col items-center justify-center w-20 h-20 border-2 border-dashed rounded-lg cursor-pointer hover:bg-slate-50">
+              <input 
+                type="file" 
+                className="hidden" 
+                accept="image/*" 
+                multiple 
+                onChange={handleGalleryUpload} 
+              />
+              {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5 text-slate-400" />}
             </label>
-          )}
+          </div>
+          <p className="text-xs text-slate-500 mt-2">Dodaj wiele zdjęć - użytkownicy będą mogli je przeglądać</p>
         </div>
       </div>
 
