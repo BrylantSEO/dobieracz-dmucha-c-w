@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
-// Konfiguracja wag dla scoringu
+// Konfiguracja wag dla scoringu tagowego
 const RANKING_CONFIG = {
   // Wagi dla PRZEDSZKOLE lub wiek < 6
   PRESCHOOL: {
@@ -20,7 +20,7 @@ const RANKING_CONFIG = {
       'INTENT:rywalizacja': -15
     }
   },
-  
+
   // Wagi dla SZKOŁA / półkolonie (6-10)
   SCHOOL: {
     boosts: {
@@ -35,10 +35,10 @@ const RANKING_CONFIG = {
     penalties: {
       'AGE:dla maluchów (2-4)': -10,
       'INTENT:spokojne': -10,
-      'MECHANIC:zjeżdżalnia': -10  // Tylko jeśli nie competitive
+      'MECHANIC:zjeżdżalnia': -10
     }
   },
-  
+
   // Wagi dla URODZINY (różne wieki)
   BIRTHDAY: {
     boosts: {
@@ -51,7 +51,7 @@ const RANKING_CONFIG = {
     },
     penalties: {}
   },
-  
+
   // Wagi dla FESTYN/PIKNIK (mix wieku)
   FESTIVAL: {
     boosts: {
@@ -63,7 +63,7 @@ const RANKING_CONFIG = {
     },
     penalties: {}
   },
-  
+
   // Wagi dla EVENT FIRMOWY
   CORPORATE: {
     boosts: {
@@ -80,155 +80,315 @@ const RANKING_CONFIG = {
 };
 
 // Oblicza overlap między dwoma zakresami [a1, a2] i [b1, b2]
-function calculateAgeOverlap(userMin, userMax, infMin, infMax) {
-  if (!infMin || !infMax) return 0.5; // Brak danych o wieku = neutralne
-  
+function calculateAgeOverlap(userMin: number, userMax: number, infMin: number, infMax: number): number {
+  if (!infMin || !infMax) return 0.5;
+
   const overlapStart = Math.max(userMin, infMin);
   const overlapEnd = Math.min(userMax, infMax);
-  
-  if (overlapStart > overlapEnd) return 0; // Brak przecięcia
-  
+
+  if (overlapStart > overlapEnd) return 0;
+
   const overlapSize = overlapEnd - overlapStart;
   const userRange = userMax - userMin;
   const infRange = infMax - infMin;
   const avgRange = (userRange + infRange) / 2;
-  
-  return Math.min(overlapSize / avgRange, 1);
+
+  return Math.min(overlapSize / (avgRange || 1), 1);
 }
 
 // Określa profil wyszukiwania na podstawie wieku i typu wydarzenia
-function determineSearchProfile(eventType, ageMin, ageMax) {
+function determineSearchProfile(eventType: string, ageMin: number, ageMax: number): string {
   const avgAge = (ageMin + ageMax) / 2;
-  
-  // Przedszkole
-  if (eventType === 'przedszkole' || avgAge < 6) {
-    return 'PRESCHOOL';
-  }
-  
-  // Szkoła
-  if (eventType === 'school_event' || (avgAge >= 6 && avgAge <= 10)) {
-    return 'SCHOOL';
-  }
-  
-  // Festyn/piknik
-  if (eventType === 'festival' || eventType === 'corporate_picnic') {
-    return 'FESTIVAL';
-  }
-  
-  // Event firmowy
-  if (eventType === 'corporate_event') {
-    return 'CORPORATE';
-  }
-  
-  // Urodziny (domyślnie)
+
+  if (eventType === 'przedszkole' || avgAge < 6) return 'PRESCHOOL';
+  if (eventType === 'school_event' || (avgAge >= 6 && avgAge <= 10)) return 'SCHOOL';
+  if (eventType === 'festival' || eventType === 'corporate_picnic') return 'FESTIVAL';
+  if (eventType === 'corporate_event') return 'CORPORATE';
+
   return 'BIRTHDAY';
+}
+
+// Ekstrakcja informacji z opisu użytkownika przez LLM
+async function extractInfoFromDescription(
+  description: string,
+  base44Client: Record<string, unknown>
+): Promise<{ is_outdoor?: boolean; ageMin?: number; ageMax?: number }> {
+  try {
+    const response = await (base44Client as { integrations: { Core: { InvokeLLM: (opts: unknown) => Promise<unknown> } } })
+      .integrations.Core.InvokeLLM({
+        prompt: `Wyciągnij kluczowe informacje z opisu imprezy. Jeśli czegoś brak, pozostaw null.
+
+Opis: "${description}"
+
+Wyciągnij:
+- ageMin: minimalny wiek uczestników (liczba lub null)
+- ageMax: maksymalny wiek uczestników (liczba lub null)
+- is_outdoor: czy na zewnątrz (boolean lub null, null = nieznane)`,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            ageMin: { type: 'number' },
+            ageMax: { type: 'number' },
+            is_outdoor: { type: 'boolean' },
+          }
+        }
+      });
+    return (response as Record<string, unknown>) || {};
+  } catch {
+    return {};
+  }
+}
+
+// Generuje embedding przez OpenRouter
+async function generateEmbedding(text: string, openrouterKey: string): Promise<number[]> {
+  const response = await fetch('https://openrouter.ai/api/v1/embeddings', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${openrouterKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'openai/text-embedding-3-small',
+      input: text,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`OpenRouter embedding error: ${await response.text()}`);
+  }
+
+  const data = await response.json();
+  return data.data[0].embedding;
+}
+
+// Wyszukiwanie semantyczne w Supabase pgvector
+async function semanticSearch(
+  embedding: number[],
+  supabaseUrl: string,
+  supabaseKey: string,
+  matchCount = 20
+): Promise<Array<{ inflatable_id: string; similarity: number }>> {
+  const response = await fetch(`${supabaseUrl}/rest/v1/rpc/match_inflatables`, {
+    method: 'POST',
+    headers: {
+      'apikey': supabaseKey,
+      'Authorization': `Bearer ${supabaseKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query_embedding: embedding,
+      match_threshold: 0.3,
+      match_count: matchCount,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Supabase semantic search error: ${await response.text()}`);
+  }
+
+  return response.json();
+}
+
+// Generuje spersonalizowane uzasadnienia dla top-6 przez LLM
+async function generatePersonalizedReasons(
+  candidates: Array<{ id: string; name: string; description: string; tags: string[]; intensity: string; is_competitive: boolean }>,
+  userDescription: string,
+  eventContext: { eventType: string; ageMin: number; ageMax: number; intensity: string },
+  base44Client: Record<string, unknown>
+): Promise<Record<string, string[]>> {
+  try {
+    const response = await (base44Client as { integrations: { Core: { InvokeLLM: (opts: unknown) => Promise<unknown> } } })
+      .integrations.Core.InvokeLLM({
+        prompt: `Jesteś asystentem doboru dmuchańców.
+
+Zapytanie klienta: "${userDescription}"
+Typ imprezy: ${eventContext.eventType || 'nieokreślony'}, Wiek: ${eventContext.ageMin}-${eventContext.ageMax} lat, Intensywność: ${eventContext.intensity}
+
+Dla każdego dmuchańca napisz 2 KONKRETNE zdania dlaczego jest idealny dla TEGO klienta.
+Odpowiedz na co konkretnie napisał klient. Nie używaj ogólników.
+
+Kandydaci:
+${JSON.stringify(candidates, null, 2)}`,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            results: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  inflatable_id: { type: 'string' },
+                  reasons: { type: 'array', items: { type: 'string' } }
+                }
+              }
+            }
+          }
+        }
+      });
+
+    const result = response as { results?: Array<{ inflatable_id: string; reasons: string[] }> };
+    const reasonsMap: Record<string, string[]> = {};
+    (result?.results || []).forEach(r => {
+      reasonsMap[r.inflatable_id] = r.reasons;
+    });
+    return reasonsMap;
+  } catch {
+    return {};
+  }
 }
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    
+
     if (!user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { 
-      eventType, 
-      ageMin, 
-      ageMax, 
-      isOutdoor, 
-      spaceLength, 
+    const {
+      userDescription,
+      eventType,
+      ageMin,
+      ageMax,
+      spaceLength,
       spaceWidth,
       eventDate,
       isCompetitive,
-      intensity 
+      intensity
     } = await req.json();
 
-    // Krok 1: Pobranie wszystkich aktywnych dmuchańców
-    const inflatables = await base44.asServiceRole.entities.Inflatable.filter({ 
-      is_active: true 
-    });
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const openrouterKey = Deno.env.get('OPENROUTER_API_KEY');
 
-    // Krok 2: Pobranie wszystkich tagów
+    const hasSemanticSearch = !!(supabaseUrl && supabaseKey && openrouterKey);
+
+    // Krok 1: Pobranie wszystkich aktywnych dmuchańców i tagów
+    const inflatables = await base44.asServiceRole.entities.Inflatable.filter({ is_active: true });
     const tags = await base44.asServiceRole.entities.Tag.filter({ is_active: true });
-    const tagsById = {};
-    tags.forEach(t => { tagsById[t.id] = t; });
+    const tagsById: Record<string, { id: string; name: string; group?: string; category?: string }> = {};
+    tags.forEach((t: { id: string; name: string; group?: string; category?: string }) => { tagsById[t.id] = t; });
+
+    // Krok 2: Ekstrakcja info z opisu + semantic search (jeśli dostępne)
+    let extractedInfo: { is_outdoor?: boolean; ageMin?: number; ageMax?: number } = {};
+    let semanticScores: Record<string, number> = {};
+
+    if (userDescription && hasSemanticSearch) {
+      // Równolegle: ekstrakcja info i generowanie embeddingu
+      const [extracted, embedding] = await Promise.all([
+        extractInfoFromDescription(userDescription, base44),
+        generateEmbedding(userDescription, openrouterKey!),
+      ]);
+
+      extractedInfo = extracted;
+
+      const semanticResults = await semanticSearch(embedding, supabaseUrl!, supabaseKey!);
+      semanticResults.forEach(r => {
+        semanticScores[r.inflatable_id] = r.similarity;
+      });
+    } else if (userDescription) {
+      extractedInfo = await extractInfoFromDescription(userDescription, base44);
+    }
+
+    // Efektywny outdoor: z formularza lub z ekstrakcji z opisu
+    const effectiveIsOutdoor = extractedInfo.is_outdoor;
+
+    // Efektywny wiek: z formularza lub z ekstrakcji
+    const effectiveAgeMin = ageMin ?? extractedInfo.ageMin;
+    const effectiveAgeMax = ageMax ?? extractedInfo.ageMax ?? effectiveAgeMin;
 
     // Krok 3: Twarde filtrowanie
-    const candidates = inflatables.filter(inf => {
+    const candidates = inflatables.filter((inf: Record<string, unknown>) => {
       // Filtr wiek
-      if (ageMin !== undefined && ageMax !== undefined) {
+      if (effectiveAgeMin !== undefined && effectiveAgeMax !== undefined) {
         if (inf.age_min && inf.age_max) {
-          const overlap = calculateAgeOverlap(ageMin, ageMax, inf.age_min, inf.age_max);
+          const overlap = calculateAgeOverlap(
+            effectiveAgeMin, effectiveAgeMax,
+            inf.age_min as number, inf.age_max as number
+          );
           if (overlap === 0) return false;
         }
       }
-      
+
       // Filtr wymiary przestrzeni
       if (spaceLength && spaceWidth) {
-        if (inf.min_space_length && inf.min_space_length > spaceLength) return false;
-        if (inf.min_space_width && inf.min_space_width > spaceWidth) return false;
+        if (inf.min_space_length && (inf.min_space_length as number) > spaceLength) return false;
+        if (inf.min_space_width && (inf.min_space_width as number) > spaceWidth) return false;
       }
-      
-      // Filtr wewnątrz/zewnątrz
-      if (isOutdoor === false && !inf.indoor_suitable) return false;
-      if (isOutdoor === true && !inf.outdoor_suitable) return false;
-      
+
+      // Filtr wewnątrz/zewnątrz (tylko jeśli wiemy z opisu lub formularza)
+      if (effectiveIsOutdoor === false && !inf.indoor_suitable) return false;
+      if (effectiveIsOutdoor === true && !inf.outdoor_suitable) return false;
+
+      // Jeśli semantic search — weź tylko kandydatów ze scoringiem (lub tych bez danych jeśli brak wyników)
+      if (hasSemanticSearch && Object.keys(semanticScores).length > 0) {
+        if (!(inf.id as string in semanticScores)) return false;
+      }
+
       return true;
     });
 
-    // Krok 4: Sprawdzenie dostępności (jeśli podano datę)
-    const candidatesWithAvailability = await Promise.all(
-      candidates.map(async (inf) => {
-        let isAvailable = true;
-        
-        if (eventDate) {
-          const bookings = await base44.asServiceRole.entities.Booking.filter({
-            inflatable_id: inf.id,
-          });
-          
-          const conflictingBooking = bookings.find(b => 
-            b.status !== 'cancelled' &&
-            eventDate >= b.start_date && eventDate <= b.end_date
-          );
-          
-          if (conflictingBooking) {
-            isAvailable = false;
-          } else {
-            const blocks = await base44.asServiceRole.entities.AvailabilityBlock.filter({
-              inflatable_id: inf.id,
-              is_active: true,
-            });
-            
-            const conflictingBlock = blocks.find(b => 
-              eventDate >= b.start_date && eventDate <= b.end_date
-            );
-            
-            if (conflictingBlock) isAvailable = false;
-          }
+    // Krok 4: Batch sprawdzenie dostępności (1 fetch wszystkich bookingów dla daty)
+    let bookedIds = new Set<string>();
+    let blockedIds = new Set<string>();
+
+    if (eventDate) {
+      const [allBookings, allBlocks] = await Promise.all([
+        base44.asServiceRole.entities.Booking.filter({}),
+        base44.asServiceRole.entities.AvailabilityBlock.filter({ is_active: true }),
+      ]);
+
+      allBookings.forEach((b: Record<string, unknown>) => {
+        if (
+          b.status !== 'cancelled' &&
+          eventDate >= (b.start_date as string) &&
+          eventDate <= (b.end_date as string)
+        ) {
+          bookedIds.add(b.inflatable_id as string);
         }
-        
-        return { ...inf, isAvailable };
-      })
-    );
+      });
+
+      allBlocks.forEach((b: Record<string, unknown>) => {
+        if (
+          eventDate >= (b.start_date as string) &&
+          eventDate <= (b.end_date as string)
+        ) {
+          blockedIds.add(b.inflatable_id as string);
+        }
+      });
+    }
 
     // Krok 5: Scoring
-    const profile = determineSearchProfile(eventType, ageMin || 0, ageMax || 99);
-    const config = RANKING_CONFIG[profile];
-    
-    const rankedResults = candidatesWithAvailability.map(inf => {
-      let score = 50; // Bazowy score
-      const reasons = [];
-      const penalties = [];
-      
-      // Tagi dmuchańca
-      const inflatableTags = (inf.tag_ids || [])
-        .map(tagId => tagsById[tagId])
+    const profile = determineSearchProfile(
+      eventType || '',
+      effectiveAgeMin || 0,
+      effectiveAgeMax || 99
+    );
+    const config = RANKING_CONFIG[profile as keyof typeof RANKING_CONFIG];
+
+    const rankedResults = candidates.map((inf: Record<string, unknown>) => {
+      const infId = inf.id as string;
+      const isAvailable = eventDate
+        ? !bookedIds.has(infId) && !blockedIds.has(infId)
+        : true;
+
+      let score = 0;
+      const reasons: string[] = [];
+
+      // Semantic score (0-50 pkt)
+      if (hasSemanticSearch && semanticScores[infId] !== undefined) {
+        score += semanticScores[infId] * 50;
+      } else {
+        score += 25; // Neutralny punkt startowy bez semantic
+      }
+
+      // Tag scoring (0-40 pkt z RANKING_CONFIG)
+      const inflatableTags = ((inf.tag_ids as string[]) || [])
+        .map((tagId: string) => tagsById[tagId])
         .filter(Boolean);
-      
-      // Mapowanie user-friendly reasons
-      const eventTypeLabels = {
+
+      const eventTypeLabels: Record<string, string> = {
         'birthday': 'urodziny',
         'przedszkole': 'przedszkole',
         'school_event': 'wydarzenie szkolne',
@@ -237,128 +397,174 @@ Deno.serve(async (req) => {
         'communion': 'komunię',
         'wedding': 'wesele'
       };
-      
-      // Scoring po tagach
-      inflatableTags.forEach(tag => {
-        const tagKey = `${tag.group}:${tag.name}`;
-        
-        // Boosty
-        if (config.boosts[tagKey]) {
-          score += config.boosts[tagKey];
-          
-          // User-friendly reason
-          if (tag.group === 'EVENT') {
-            const eventLabel = eventTypeLabels[eventType] || 'to wydarzenie';
-            reasons.push(`Doskonały wybór na ${eventLabel}`);
-          } else if (tag.group === 'AGE') {
-            reasons.push(`Idealny dla tej grupy wiekowej`);
-          } else if (tag.group === 'MECHANIC') {
-            if (tag.name === 'tor przeszkód') {
-              reasons.push(`Świetny tor przeszkód - pełen wyzwań`);
-            } else if (tag.name === 'zjeżdżalnia') {
-              reasons.push(`Ekscytująca zjeżdżalnia - gwarantowana frajda`);
-            } else {
-              reasons.push(`${tag.name} - świetna mechanika`);
-            }
-          } else if (tag.group === 'INTENT') {
-            if (tag.name === 'rywalizacja') {
-              reasons.push(`Wspaniała zabawa rywalizacyjna`);
-            } else {
-              reasons.push(`Odpowiedni charakter zabawy`);
+
+      let tagScore = 0;
+      inflatableTags.forEach((tag: { name: string; group?: string; category?: string }) => {
+        const tagGroup = tag.group || tag.category || '';
+        const tagKey = `${tagGroup}:${tag.name}`;
+
+        if (config.boosts[tagKey as keyof typeof config.boosts]) {
+          tagScore += config.boosts[tagKey as keyof typeof config.boosts] as number;
+
+          if (!userDescription) {
+            // Tylko dodaj generic reasons jeśli nie mamy LLM personalizacji
+            if (tagGroup === 'EVENT') {
+              const eventLabel = eventTypeLabels[eventType] || 'to wydarzenie';
+              reasons.push(`Doskonały wybór na ${eventLabel}`);
+            } else if (tagGroup === 'AGE') {
+              reasons.push('Idealny dla tej grupy wiekowej');
+            } else if (tagGroup === 'MECHANIC') {
+              if (tag.name === 'tor przeszkód') reasons.push('Świetny tor przeszkód - pełen wyzwań');
+              else if (tag.name === 'zjeżdżalnia') reasons.push('Ekscytująca zjeżdżalnia - gwarantowana frajda');
+              else reasons.push(`${tag.name} - świetna mechanika`);
+            } else if (tagGroup === 'INTENT') {
+              if (tag.name === 'rywalizacja') reasons.push('Wspaniała zabawa rywalizacyjna');
+              else reasons.push('Odpowiedni charakter zabawy');
             }
           }
         }
-        
-        // Kary - nie pokazujemy użytkownikowi
-        if (config.penalties[tagKey]) {
-          score += config.penalties[tagKey];
+
+        if (config.penalties[tagKey as keyof typeof config.penalties]) {
+          tagScore += config.penalties[tagKey as keyof typeof config.penalties] as number;
         }
       });
-      
-      // Scoring po rywalizacji
-      if (isCompetitive !== undefined) {
-        if (isCompetitive && inf.is_competitive) {
-          score += 35;
-          reasons.push('Świetny wybór do rywalizacji i zawodów');
-        } else if (isCompetitive && !inf.is_competitive) {
-          score -= 15;
-        }
+
+      // Clamp tag score to 0-40
+      score += Math.max(0, Math.min(tagScore, 40));
+
+      // Age overlap (0-20 pkt)
+      if (effectiveAgeMin !== undefined && effectiveAgeMax !== undefined && inf.age_min && inf.age_max) {
+        const overlap = calculateAgeOverlap(
+          effectiveAgeMin, effectiveAgeMax,
+          inf.age_min as number, inf.age_max as number
+        );
+        score += overlap * 20;
       }
-      
-      // Scoring po intensywności
+
+      // Intensity match (0 lub 15 pkt)
       if (intensity && inf.intensity) {
-        const intensityMap = { LOW: 0, MEDIUM: 1, HIGH: 2 };
+        const intensityMap: Record<string, number> = { LOW: 0, MEDIUM: 1, HIGH: 2 };
         const userLevel = intensityMap[intensity];
-        const infLevel = intensityMap[inf.intensity];
-        
+        const infLevel = intensityMap[inf.intensity as string];
+
         if (userLevel === infLevel) {
-          score += 20;
-          if (intensity === 'LOW') {
-            reasons.push('Spokojny i bezpieczny - idealne dla młodszych dzieci');
-          } else if (intensity === 'MEDIUM') {
-            reasons.push('Nie za ekstremalne - bezpieczna dawka adrenaliny');
-          } else if (intensity === 'HIGH') {
-            reasons.push('Hardcore! Dla prawdziwych szukających wrażeń');
-          }
+          score += 15;
         } else if (Math.abs(userLevel - infLevel) === 1) {
           score += 5;
         } else {
-          score -= 25;
+          score -= 10;
         }
       }
-      
-      // Bonus za overlap wieku
-      if (ageMin !== undefined && ageMax !== undefined && inf.age_min && inf.age_max) {
-        const overlap = calculateAgeOverlap(ageMin, ageMax, inf.age_min, inf.age_max);
-        const ageBonus = Math.round(overlap * 20);
-        if (ageBonus > 0) {
-          score += ageBonus;
-          reasons.push(`Idealny wiek (+${ageBonus})`);
+
+      // Competitive match (0 lub 15 pkt)
+      if (isCompetitive !== undefined) {
+        if (isCompetitive && inf.is_competitive) {
+          score += 15;
+        } else if (isCompetitive && !inf.is_competitive) {
+          score -= 10;
         }
       }
-      
-      // Bonus za wysoką przepustowość (przy festynach)
-      if (profile === 'FESTIVAL' && inf.max_capacity && inf.max_capacity > 10) {
+
+      // event_types_fit match (+20 pkt)
+      if (eventType && Array.isArray(inf.event_types_fit)) {
+        const eventTypesMap: Record<string, string[]> = {
+          'birthday': ['birthday'],
+          'przedszkole': ['preschool'],
+          'school_event': ['school'],
+          'festival': ['festival'],
+          'corporate_event': ['corporate'],
+          'corporate_picnic': ['corporate', 'festival'],
+          'communion': ['communion'],
+          'wedding': ['wedding'],
+        };
+        const matchKeys = eventTypesMap[eventType] || [];
+        const fits = inf.event_types_fit as string[];
+        if (matchKeys.some(k => fits.includes(k))) {
+          score += 20;
+        }
+      }
+
+      // wow_factor boost (+10 pkt przy FESTIVAL/CORPORATE jeśli ≥4)
+      if (inf.wow_factor && (inf.wow_factor as number) >= 4) {
+        if (profile === 'FESTIVAL' || profile === 'CORPORATE') {
+          score += 10;
+        }
+      }
+
+      // simultaneous_capacity bonus (+5 przy FESTIVAL z dużą grupą)
+      if (profile === 'FESTIVAL' && inf.simultaneous_capacity && (inf.simultaneous_capacity as number) > 8) {
         score += 5;
-        reasons.push('Wysoka pojemność (+5)');
       }
-      
+
       return {
-        inflatable_id: inf.id,
+        inflatable_id: infId,
         inflatable: inf,
-        score: Math.max(score, 0),
-        reasons: reasons.slice(0, 4), // Max 4 powody
-        penalties: penalties.slice(0, 2),
-        is_available: inf.isAvailable,
-        rank: 0 // Ustawi się później
+        score: Math.max(0, Math.min(Math.round(score), 100)),
+        reasons,
+        is_available: isAvailable,
+        rank: 0,
       };
     });
-    
+
     // Sortowanie: dostępne na górze, potem po score
-    rankedResults.sort((a, b) => {
-      if (a.is_available !== b.is_available) {
-        return b.is_available ? 1 : -1;
-      }
+    rankedResults.sort((a: { is_available: boolean; score: number }, b: { is_available: boolean; score: number }) => {
+      if (a.is_available !== b.is_available) return b.is_available ? 1 : -1;
       return b.score - a.score;
     });
-    
-    // Przypisanie rankingu
-    rankedResults.forEach((r, idx) => {
-      r.rank = idx + 1;
-    });
+
+    rankedResults.forEach((r: { rank: number }, idx: number) => { r.rank = idx + 1; });
+
+    // Krok 6: Spersonalizowane uzasadnienia dla top-6 (jeśli mamy opis)
+    if (userDescription && rankedResults.length > 0) {
+      const top6 = rankedResults.slice(0, 6);
+      const candidatesForLLM = top6.map((r: { inflatable_id: string; inflatable: Record<string, unknown> }) => {
+        const inf = r.inflatable;
+        const tagNames = ((inf.tag_ids as string[]) || [])
+          .map((id: string) => tagsById[id]?.name)
+          .filter(Boolean);
+        return {
+          id: r.inflatable_id,
+          name: inf.name as string,
+          description: (inf.description as string) || '',
+          tags: tagNames,
+          intensity: (inf.intensity as string) || '',
+          is_competitive: (inf.is_competitive as boolean) || false,
+        };
+      });
+
+      const personalizedReasons = await generatePersonalizedReasons(
+        candidatesForLLM,
+        userDescription,
+        {
+          eventType: eventType || '',
+          ageMin: effectiveAgeMin || 0,
+          ageMax: effectiveAgeMax || 99,
+          intensity: intensity || '',
+        },
+        base44
+      );
+
+      // Nadpisz reasons spersonalizowanymi
+      top6.forEach((r: { inflatable_id: string; reasons: string[] }) => {
+        if (personalizedReasons[r.inflatable_id]) {
+          r.reasons = personalizedReasons[r.inflatable_id];
+        }
+      });
+    }
 
     return Response.json({
       results: rankedResults,
       profile,
       totalCount: rankedResults.length,
-      availableCount: rankedResults.filter(r => r.is_available).length
+      availableCount: rankedResults.filter((r: { is_available: boolean }) => r.is_available).length,
+      semanticEnabled: hasSemanticSearch,
     });
 
   } catch (error) {
     console.error('Ranking error:', error);
-    return Response.json({ 
-      error: error.message,
-      stack: error.stack 
+    return Response.json({
+      error: (error as Error).message,
+      stack: (error as Error).stack
     }, { status: 500 });
   }
 });

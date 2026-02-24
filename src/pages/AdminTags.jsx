@@ -12,10 +12,11 @@ import { Plus, Edit2, Trash2, Tag, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const categories = [
-  { value: 'type', label: 'Typ dmuchańca', color: 'bg-blue-100 text-blue-800' },
-  { value: 'age_group', label: 'Grupa wiekowa', color: 'bg-green-100 text-green-800' },
-  { value: 'theme', label: 'Tematyka', color: 'bg-purple-100 text-purple-800' },
-  { value: 'feature', label: 'Cecha', color: 'bg-orange-100 text-orange-800' },
+  { value: 'EVENT', label: 'Wydarzenie', color: 'bg-blue-100 text-blue-800', example: 'np. urodziny, przedszkole, festyn' },
+  { value: 'AGE', label: 'Wiek', color: 'bg-green-100 text-green-800', example: 'np. dla maluchów (2-4), szkoła (6-10)' },
+  { value: 'MECHANIC', label: 'Mechanika', color: 'bg-purple-100 text-purple-800', example: 'np. tor przeszkód, zjeżdżalnia, duel' },
+  { value: 'INTENT', label: 'Charakter zabawy', color: 'bg-orange-100 text-orange-800', example: 'np. spokojne, rywalizacja, wow/premium' },
+  { value: 'THEME', label: 'Tematyka', color: 'bg-pink-100 text-pink-800', example: 'np. kolorowy, dinozaury, superbohaterowie' },
 ];
 
 const defaultColors = [
@@ -26,7 +27,7 @@ const defaultColors = [
 export default function AdminTags() {
   const [showForm, setShowForm] = useState(false);
   const [editingTag, setEditingTag] = useState(null);
-  const [formData, setFormData] = useState({ name: '', category: 'feature', color: defaultColors[0] });
+  const [formData, setFormData] = useState({ name: '', group: 'EVENT', color: defaultColors[0] });
   const queryClient = useQueryClient();
 
   const { data: tags = [], isLoading } = useQuery({
@@ -54,13 +55,13 @@ export default function AdminTags() {
 
   const handleAdd = () => {
     setEditingTag(null);
-    setFormData({ name: '', category: 'feature', color: defaultColors[Math.floor(Math.random() * defaultColors.length)] });
+    setFormData({ name: '', group: 'EVENT', color: defaultColors[Math.floor(Math.random() * defaultColors.length)] });
     setShowForm(true);
   };
 
   const handleEdit = (tag) => {
     setEditingTag(tag);
-    setFormData({ name: tag.name, category: tag.category, color: tag.color || defaultColors[0] });
+    setFormData({ name: tag.name, group: tag.group || tag.category || 'EVENT', color: tag.color || defaultColors[0] });
     setShowForm(true);
   };
 
@@ -76,7 +77,7 @@ export default function AdminTags() {
 
   const groupedTags = categories.map(cat => ({
     ...cat,
-    tags: tags.filter(t => t.category === cat.value)
+    tags: tags.filter(t => (t.group || t.category) === cat.value)
   }));
 
   return (
@@ -159,17 +160,22 @@ export default function AdminTags() {
               />
             </div>
             <div>
-              <Label>Kategoria *</Label>
-              <Select 
-                value={formData.category}
-                onValueChange={(v) => setFormData(prev => ({ ...prev, category: v }))}
+              <Label>Grupa *</Label>
+              <Select
+                value={formData.group}
+                onValueChange={(v) => setFormData(prev => ({ ...prev, group: v }))}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map(cat => (
-                    <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                    <SelectItem key={cat.value} value={cat.value}>
+                      <div>
+                        <div className="font-medium">{cat.label}</div>
+                        <div className="text-xs text-slate-400">{cat.example}</div>
+                      </div>
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>

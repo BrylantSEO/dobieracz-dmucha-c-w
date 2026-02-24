@@ -63,6 +63,11 @@ export default function InflatableForm({ inflatable, tags, onClose }) {
     is_active: true,
     is_competitive: false,
     intensity: 'MEDIUM',
+    event_types_fit: [],
+    simultaneous_capacity: null,
+    wow_factor: null,
+    best_for_notes: '',
+    color_theme: '',
     ...inflatable,
   });
   const [uploading, setUploading] = useState(false);
@@ -74,8 +79,13 @@ export default function InflatableForm({ inflatable, tags, onClose }) {
       }
       return base44.entities.Inflatable.create(data);
     },
-    onSuccess: () => {
+    onSuccess: (savedInflatable) => {
       queryClient.invalidateQueries(['inflatables']);
+      if (savedInflatable?.id) {
+        base44.functions.invoke('syncSingleInflatable', {
+          inflatable_id: savedInflatable.id
+        }).catch(err => console.warn('Auto-sync failed:', err));
+      }
       onClose();
     },
   });
@@ -495,6 +505,104 @@ export default function InflatableForm({ inflatable, tags, onClose }) {
                 </SelectItem>
               </SelectContent>
             </Select>
+          </div>
+        </div>
+      </div>
+
+      {/* Semantic search fields */}
+      <div className="border-t pt-6">
+        <h3 className="text-lg font-semibold mb-4">Wyszukiwanie semantyczne (AI)</h3>
+
+        <div className="space-y-4">
+          <div>
+            <Label className="mb-2 block">Najlepszy dla eventów</Label>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { value: 'birthday', label: 'Urodziny' },
+                { value: 'preschool', label: 'Przedszkole' },
+                { value: 'school', label: 'Szkoła' },
+                { value: 'festival', label: 'Festyn/Piknik' },
+                { value: 'corporate', label: 'Event firmowy' },
+                { value: 'communion', label: 'Komunia' },
+                { value: 'wedding', label: 'Wesele' },
+              ].map(et => (
+                <Badge
+                  key={et.value}
+                  variant={formData.event_types_fit?.includes(et.value) ? 'default' : 'outline'}
+                  className="cursor-pointer"
+                  onClick={() => setFormData(prev => ({
+                    ...prev,
+                    event_types_fit: prev.event_types_fit?.includes(et.value)
+                      ? prev.event_types_fit.filter(v => v !== et.value)
+                      : [...(prev.event_types_fit || []), et.value]
+                  }))}
+                >
+                  {et.label}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Ile dzieci jednocześnie na dmuchańcu</Label>
+              <Input
+                type="number"
+                value={formData.simultaneous_capacity || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, simultaneous_capacity: parseInt(e.target.value) || null }))}
+                placeholder="np. 4"
+              />
+            </div>
+            <div>
+              <Label>Wow factor (1-5)</Label>
+              <Select
+                value={formData.wow_factor ? String(formData.wow_factor) : ''}
+                onValueChange={(v) => setFormData(prev => ({ ...prev, wow_factor: parseInt(v) || null }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Wybierz..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 — Standardowy</SelectItem>
+                  <SelectItem value="2">2 — Ciekawy</SelectItem>
+                  <SelectItem value="3">3 — Dobry</SelectItem>
+                  <SelectItem value="4">4 — Efektowny</SelectItem>
+                  <SelectItem value="5">5 — Spektakularny!</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div>
+            <Label>Motyw kolorystyczny</Label>
+            <Select
+              value={formData.color_theme || ''}
+              onValueChange={(v) => setFormData(prev => ({ ...prev, color_theme: v }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Wybierz motyw..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="colorful">Kolorowy</SelectItem>
+                <SelectItem value="princess">Księżniczka</SelectItem>
+                <SelectItem value="dino">Dinozaury</SelectItem>
+                <SelectItem value="sports">Sport</SelectItem>
+                <SelectItem value="neutral">Neutralny</SelectItem>
+                <SelectItem value="superheroes">Superbohaterowie</SelectItem>
+                <SelectItem value="tropical">Tropikalny</SelectItem>
+                <SelectItem value="dark">Ciemny/mroczny</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label>Notatki dla AI — co czyni go wyjątkowym</Label>
+            <Textarea
+              value={formData.best_for_notes || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, best_for_notes: e.target.value }))}
+              rows={2}
+              placeholder="np. Idealny dla dzieci z ADHD, bezpieczny dla maluchów, bardzo miękkie ściany..."
+            />
           </div>
         </div>
       </div>

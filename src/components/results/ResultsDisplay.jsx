@@ -5,10 +5,11 @@ import PricingSidebar from './PricingSidebar';
 import { AlertTriangle, Sparkles, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function ResultsDisplay({ 
-  recommendations, 
-  inflatables, 
+export default function ResultsDisplay({
+  recommendations,
+  inflatables,
   isLoading,
+  eventDate,
   onSubmitRequest,
   submitting,
   noResults = false
@@ -97,7 +98,7 @@ export default function ResultsDisplay({
                      recommendation={rec}
                      isSelected={selectedIds.includes(rec.inflatable_id)}
                      onToggleSelect={toggleSelect}
-                     eventDate={sessionStorage.getItem('eventDate')}
+                     eventDate={eventDate}
                    />
                 </motion.div>
               );
@@ -120,7 +121,7 @@ export default function ResultsDisplay({
                      inflatable={rec.inflatable || inflatable}
                      recommendation={rec}
                      showCheckbox={false}
-                     eventDate={sessionStorage.getItem('eventDate')}
+                     eventDate={eventDate}
                    />
                 );
               })}

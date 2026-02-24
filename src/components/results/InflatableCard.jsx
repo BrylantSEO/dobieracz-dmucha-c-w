@@ -161,6 +161,20 @@ export default function InflatableCard({
           </div>
         )}
 
+        <div className="flex flex-wrap gap-2 mb-3">
+          {inflatable.wow_factor > 0 && (
+            <Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50 text-xs gap-1">
+              {'★'.repeat(inflatable.wow_factor)}{'☆'.repeat(5 - inflatable.wow_factor)}
+            </Badge>
+          )}
+          {inflatable.simultaneous_capacity > 0 && (
+            <Badge variant="outline" className="text-slate-600 border-slate-200 text-xs gap-1">
+              <Users className="w-3 h-3" />
+              {inflatable.simultaneous_capacity} dzieci jednocześnie
+            </Badge>
+          )}
+        </div>
+
         <div className="flex items-end justify-between pt-3 border-t border-slate-100">
           <div>
             <p className="text-xs text-slate-500">Cena od</p>

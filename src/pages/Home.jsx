@@ -11,6 +11,7 @@ import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
 import { PartyPopper, Sparkles, Calendar as CalendarIcon, Users, Zap, Phone, Wand2, Loader2, ArrowLeft } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { toast } from 'sonner';
 import ResultsDisplay from '@/components/results/ResultsDisplay';
 import ConfirmationView from '@/components/results/ConfirmationView';
 import StepContact from '@/components/wizard/StepContact';
@@ -170,11 +171,13 @@ Wyciągnij:
       const ageMin = formData.age_min ? parseInt(formData.age_min) : undefined;
       const ageMax = formData.age_max ? parseInt(formData.age_max) : (ageMin ? ageMin : undefined);
       
+      sessionStorage.setItem('eventDate', formData.event_date || '');
+
       const response = await base44.functions.invoke('rankInflatables', {
+        userDescription: formData.description,
         eventType: formData.event_type,
         ageMin: ageMin,
         ageMax: ageMax || ageMin,
-        isOutdoor: true,
         eventDate: formData.event_date,
         isCompetitive: formData.is_competitive,
         intensity: formData.intensity
@@ -372,18 +375,18 @@ Wyciągnij:
                   const phoneRegex = /^(\+48)?[0-9]{9}$/;
 
                   if (!formData.contact_name || formData.contact_name.length < 2) {
-                    alert('Podaj prawidłowe imię i nazwisko');
+                    toast.error('Podaj prawidłowe imię i nazwisko');
                     return;
                   }
 
                   if (!emailRegex.test(formData.contact_email)) {
-                    alert('Podaj prawidłowy adres email');
+                    toast.error('Podaj prawidłowy adres email');
                     return;
                   }
 
                   const cleanedPhone = formData.contact_phone.replace(/\s/g, '');
                   if (!phoneRegex.test(cleanedPhone)) {
-                    alert('Podaj prawidłowy numer telefonu (9 cyfr)');
+                    toast.error('Podaj prawidłowy numer telefonu (9 cyfr)');
                     return;
                   }
 
@@ -411,6 +414,7 @@ Wyciągnij:
               recommendations={recommendations}
               inflatables={inflatables}
               isLoading={loading}
+              eventDate={formData.event_date}
               onSubmitRequest={(selectedIds) => {
                 setSelectedInflatableIds(selectedIds);
                 setShowContact(true);

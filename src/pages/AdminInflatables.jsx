@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { 
-  Plus, Search, Edit2, Trash2, Eye, EyeOff, 
-  Package, Zap, Users, Ruler
+import { toast } from 'sonner';
+import {
+  Plus, Search, Edit2, Trash2, Eye, EyeOff,
+  Package, Zap, Users, Ruler, Sparkles, Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import InflatableForm from '@/components/admin/InflatableForm';
@@ -27,6 +28,7 @@ export default function AdminInflatables() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingInflatable, setEditingInflatable] = useState(null);
+  const [isSyncing, setIsSyncing] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: inflatables = [], isLoading } = useQuery({
@@ -71,6 +73,22 @@ export default function AdminInflatables() {
     setEditingInflatable(null);
   };
 
+  const handleSync = async () => {
+    setIsSyncing(true);
+    try {
+      const result = await base44.functions.invoke('syncInflatablesToSupabase', {});
+      if (result.data?.errors?.length > 0) {
+        toast.warning(`Zsynchronizowano ${result.data.synced}/${result.data.total}. Błędy: ${result.data.errors.length}`);
+      } else {
+        toast.success(`Zsynchronizowano ${result.data.synced} dmuchańców z wyszukiwarką`);
+      }
+    } catch (e) {
+      toast.error(`Błąd synchronizacji: ${e.message}`);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -78,10 +96,24 @@ export default function AdminInflatables() {
           <h1 className="text-2xl font-bold text-slate-800 mb-2">Dmuchańce</h1>
           <p className="text-slate-500">Zarządzaj katalogiem atrakcji</p>
         </div>
-        <Button onClick={handleAdd} className="bg-violet-600 hover:bg-violet-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Dodaj dmuchańca
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={handleSync}
+            disabled={isSyncing}
+          >
+            {isSyncing ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Sparkles className="w-4 h-4 mr-2" />
+            )}
+            Synchronizuj z wyszukiwarką
+          </Button>
+          <Button onClick={handleAdd} className="bg-violet-600 hover:bg-violet-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Dodaj dmuchańca
+          </Button>
+        </div>
       </div>
 
       <div className="mb-6">
