@@ -177,7 +177,7 @@ async function semanticSearch(
     },
     body: JSON.stringify({
       query_embedding: embedding,
-      match_threshold: 0.3,
+      match_threshold: 0.15,
       match_count: matchCount,
     }),
   });
@@ -320,11 +320,6 @@ Deno.serve(async (req) => {
       // Filtr wewnątrz/zewnątrz (tylko jeśli wiemy z opisu lub formularza)
       if (effectiveIsOutdoor === false && !inf.indoor_suitable) return false;
       if (effectiveIsOutdoor === true && !inf.outdoor_suitable) return false;
-
-      // Jeśli semantic search — weź tylko kandydatów ze scoringiem (lub tych bez danych jeśli brak wyników)
-      if (hasSemanticSearch && Object.keys(semanticScores).length > 0) {
-        if (!(inf.id as string in semanticScores)) return false;
-      }
 
       return true;
     });
